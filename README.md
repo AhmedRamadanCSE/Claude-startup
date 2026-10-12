@@ -1,4 +1,4 @@
 # Claude-startup
 Startup
 
-- [**Tarika (تَرِكة)**](STARTUP_IDEA.md): turning Egypt's frozen inherited property into liquid assets.
+- [**وَنَس (Wanas)**](STARTUP_IDEA.md): "ابنك التاني في مصر"، اشتراك شهري لمتابعة أهالي المصريين اللي عايشين برّه.
