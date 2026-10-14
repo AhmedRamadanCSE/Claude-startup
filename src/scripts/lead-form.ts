@@ -3,7 +3,7 @@
  * submission, inline success state and conversion tracking. Without JS the
  * form posts normally and the server redirects to /thank-you/.
  */
-import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
+import { PUBLIC_TURNSTILE_SITE_KEY, PUBLIC_HUBSPOT_PORTAL_ID, PUBLIC_HUBSPOT_FORM_GUID } from 'astro:env/client';
 
 declare global {
   interface Window {
@@ -101,6 +101,55 @@ if (form) {
     return errors;
   };
 
+  /**
+   * Static hosting fallback: when the site is served without the /api/lead route
+   * (GitHub Pages, plain object storage), submit straight to HubSpot's public
+   * Forms API. Returns null when not configured.
+   */
+  const submitToHubSpotDirect = async (data: Record<string, string>): Promise<boolean | null> => {
+    if (!PUBLIC_HUBSPOT_PORTAL_ID || !PUBLIC_HUBSPOT_FORM_GUID) return null;
+    const name = (data.name ?? '').trim();
+    const parts = name.split(/\s+/);
+    const first = parts.length > 1 ? parts.slice(0, -1).join(' ') : name;
+    const last = parts.length > 1 ? (parts[parts.length - 1] ?? '') : '';
+    const field = (name: string, value: string) => ({ objectTypeId: '0-1', name, value });
+    const payload = {
+      submittedAt: Date.now(),
+      fields: [
+        field('firstname', first),
+        field('lastname', last),
+        field('email', (data.email ?? '').trim().toLowerCase()),
+        field('company', (data.company ?? '').trim()),
+        field('project_type', data.projectType ?? ''),
+        field('target_node', data.targetNode ?? ''),
+        field('project_timeline', data.timeline ?? ''),
+        field('message', (data.message ?? '').trim()),
+      ],
+      context: { pageUri: location.href, pageName: document.title, ...(data.hutk ? { hutk: data.hutk } : {}) },
+      legalConsentOptions: { consent: { consentToProcess: true, text: i18n.consentText ?? 'Consent to process this request.', communications: [] } },
+    };
+    try {
+      const res = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${encodeURIComponent(PUBLIC_HUBSPOT_PORTAL_ID)}/${encodeURIComponent(PUBLIC_HUBSPOT_FORM_GUID)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  const showSuccess = (data: Record<string, string>) => {
+    window.siTrack?.('lead_submit', { project_type: data.projectType, timeline: data.timeline });
+    form.hidden = true;
+    const success = document.getElementById('lead-form-success');
+    if (success) {
+      success.hidden = false;
+      success.focus();
+    }
+  };
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearErrors();
@@ -119,20 +168,30 @@ if (form) {
     }
 
     try {
-      const res = await fetch(form.action, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(data),
-      });
+      // Honeypot filled: behave as if sent, deliver nothing.
+      if (data.website) {
+        showSuccess(data);
+        return;
+      }
+      let res: Response | null = null;
+      try {
+        res = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(data),
+        });
+      } catch {
+        res = null;
+      }
+      if (res === null || res.status === 404 || res.status === 405) {
+        const direct = await submitToHubSpotDirect(data);
+        if (direct === true) showSuccess(data);
+        else showErrors({ form: 'form' });
+        return;
+      }
       const body = (await res.json().catch(() => ({}))) as { ok?: boolean; errors?: Record<string, string> };
       if (res.ok && body.ok) {
-        window.siTrack?.('lead_submit', { project_type: data.projectType, timeline: data.timeline });
-        form.hidden = true;
-        const success = document.getElementById('lead-form-success');
-        if (success) {
-          success.hidden = false;
-          success.focus();
-        }
+        showSuccess(data);
       } else {
         showErrors(body.errors ?? { form: 'form' });
         window.turnstile?.reset();

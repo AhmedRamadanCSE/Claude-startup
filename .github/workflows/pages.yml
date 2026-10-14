@@ -1,0 +1,60 @@
+name: Deploy to GitHub Pages
+
+# Static deployment of dist/client. The /api/lead server route does not exist on
+# GitHub Pages; the form submits directly to HubSpot when PUBLIC_HUBSPOT_* are set
+# (Settings → Secrets and variables → Actions → Variables).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || 'https://silicon-partner.com' }}
+          PUBLIC_SHOW_PLACEHOLDERS: ${{ vars.PUBLIC_SHOW_PLACEHOLDERS || 'true' }}
+          PUBLIC_HUBSPOT_PORTAL_ID: ${{ vars.PUBLIC_HUBSPOT_PORTAL_ID }}
+          PUBLIC_HUBSPOT_FORM_GUID: ${{ vars.PUBLIC_HUBSPOT_FORM_GUID }}
+          PUBLIC_GA4_MEASUREMENT_ID: ${{ vars.PUBLIC_GA4_MEASUREMENT_ID }}
+          PUBLIC_GOOGLE_ADS_CONVERSION_ID: ${{ vars.PUBLIC_GOOGLE_ADS_CONVERSION_ID }}
+          PUBLIC_GOOGLE_ADS_LEAD_LABEL: ${{ vars.PUBLIC_GOOGLE_ADS_LEAD_LABEL }}
+          PUBLIC_GOOGLE_ADS_BOOKING_LABEL: ${{ vars.PUBLIC_GOOGLE_ADS_BOOKING_LABEL }}
+          PUBLIC_LINKEDIN_PARTNER_ID: ${{ vars.PUBLIC_LINKEDIN_PARTNER_ID }}
+          PUBLIC_LINKEDIN_LEAD_CONVERSION_ID: ${{ vars.PUBLIC_LINKEDIN_LEAD_CONVERSION_ID }}
+          PUBLIC_LINKEDIN_BOOKING_CONVERSION_ID: ${{ vars.PUBLIC_LINKEDIN_BOOKING_CONVERSION_ID }}
+          PUBLIC_CALENDAR_URL: ${{ vars.PUBLIC_CALENDAR_URL }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/client
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

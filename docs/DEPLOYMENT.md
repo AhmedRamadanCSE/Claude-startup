@@ -71,6 +71,42 @@ Layered, all server-side in `src/pages/api/lead.ts`:
   - All events are also pushed to `window.dataLayer` for a future Google Tag Manager container.
 - The banner is shown to every visitor (safest GDPR posture). If you want to show it only in the EEA/UK, add geo-detection at the edge (Cloudflare `CF-IPCountry`, Vercel `x-vercel-ip-country`) and set a `data-consent-required` attribute; the script is written to be extended there.
 
+## Connecting silicon-partner.com (Namecheap)
+
+The repository is private, so pick one of these two hosts. Both give HTTPS automatically.
+
+### Option A: GitHub Pages (static; zero extra accounts)
+
+Works on a private repository only with a paid GitHub plan (Pro/Team); on the Free plan the repository must be public. The lead form then posts straight to HubSpot from the browser (set `PUBLIC_HUBSPOT_PORTAL_ID` and `PUBLIC_HUBSPOT_FORM_GUID` as repository **Variables**), because there is no server for `/api/lead`.
+
+1. In GitHub: **Settings → Pages → Source: GitHub Actions**. The `pages.yml` workflow deploys on every push to `main` and can be run by hand from **Actions → Deploy to GitHub Pages → Run workflow** (pick the branch).
+2. Still in **Settings → Pages**, set **Custom domain** to `silicon-partner.com` and save.
+3. In Namecheap: **Domain List → Manage → Advanced DNS**. Delete the default `CNAME www → parkingpage.namecheap.com` and the `URL Redirect` record, then add:
+
+| Type | Host | Value | TTL |
+| --- | --- | --- | --- |
+| A | `@` | `185.199.108.153` | Automatic |
+| A | `@` | `185.199.109.153` | Automatic |
+| A | `@` | `185.199.110.153` | Automatic |
+| A | `@` | `185.199.111.153` | Automatic |
+| AAAA | `@` | `2606:50c0:8000::153` | Automatic |
+| AAAA | `@` | `2606:50c0:8001::153` | Automatic |
+| AAAA | `@` | `2606:50c0:8002::153` | Automatic |
+| AAAA | `@` | `2606:50c0:8003::153` | Automatic |
+| CNAME | `www` | `ahmedramadancse.github.io.` | Automatic |
+
+4. Back in **Settings → Pages**, wait for the DNS check to pass (minutes to an hour), then tick **Enforce HTTPS**. `www.silicon-partner.com` redirects to the apex automatically.
+
+### Option B: Cloudflare Pages (recommended for production; keeps the server-side form)
+
+Free, works with private repositories, runs `/api/lead` as a function, and Turnstile lives in the same dashboard.
+
+1. Install the adapter and swap one line: `npm i @astrojs/cloudflare` and `adapter: cloudflare()` in `astro.config.mjs`.
+2. In Cloudflare: **Workers & Pages → Create → Pages → Connect to Git → this repository**. Build command `npm run build`, output directory `dist`. Add the environment variables from `.env.example`.
+3. **Custom domains → Add** `silicon-partner.com` and `www`. Cloudflare shows the records to add in Namecheap: a `CNAME @ → <project>.pages.dev` (Namecheap supports CNAME at the apex) and `CNAME www → <project>.pages.dev`. Or move the nameservers to Cloudflare and it manages DNS itself.
+
+Vercel and Netlify work the same way with their adapters (`@astrojs/vercel`, `@astrojs/netlify`); each shows its own DNS records after you add the domain.
+
 ## Hosting
 
 ### Node (default: any VPS, Fly.io, Railway, Render, Docker)

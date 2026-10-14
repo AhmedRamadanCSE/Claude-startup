@@ -144,6 +144,9 @@ export default defineConfig({
       PUBLIC_CALENDAR_URL: envField.string({ context: 'client', access: 'public', optional: true, default: '' }),
       PUBLIC_TURNSTILE_SITE_KEY: envField.string({ context: 'client', access: 'public', optional: true, default: '' }),
       PUBLIC_SHOW_PLACEHOLDERS: envField.boolean({ context: 'client', access: 'public', optional: true, default: true }),
+      // Static hosting (GitHub Pages, S3...): the form posts to HubSpot from the browser when these are set.
+      PUBLIC_HUBSPOT_PORTAL_ID: envField.string({ context: 'client', access: 'public', optional: true, default: '' }),
+      PUBLIC_HUBSPOT_FORM_GUID: envField.string({ context: 'client', access: 'public', optional: true, default: '' }),
       TURNSTILE_SECRET_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
       HUBSPOT_PORTAL_ID: envField.string({ context: 'server', access: 'secret', optional: true }),
       HUBSPOT_FORM_GUID: envField.string({ context: 'server', access: 'secret', optional: true }),
