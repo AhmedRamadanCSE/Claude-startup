@@ -58,16 +58,5 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
-      # Custom domain and HTTPS. Best effort: if the token lacks permission, set
-      # both in Settings → Pages by hand. HTTPS enforcement only succeeds once
-      # GitHub has issued the certificate, usually on a later run.
-      - name: Set custom domain
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh api -X PUT "repos/${{ github.repository }}/pages" -f cname=silicon-partner.com
-      - name: Enforce HTTPS
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh api -X PUT "repos/${{ github.repository }}/pages" -F https_enforced=true
+      # The custom domain and "Enforce HTTPS" are set once by hand in
+      # Settings → Pages (the workflow token is not allowed to change them).
