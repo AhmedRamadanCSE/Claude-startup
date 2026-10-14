@@ -24,7 +24,7 @@ Without CRM variables, form submissions are logged to the server console and suc
 
 | Variable | Scope | Purpose |
 | --- | --- | --- |
-| `PUBLIC_SITE_URL` | build | Canonical origin for links, sitemap, OG. **Required in production.** |
+| `PUBLIC_SITE_URL` | build | Canonical origin for links, sitemap, OG. Defaults to `https://silicon-partner.com`. |
 | `PUBLIC_GA4_MEASUREMENT_ID` | client | Google Analytics 4 (`G-…`). Empty disables. |
 | `PUBLIC_GOOGLE_ADS_CONVERSION_ID` | client | Google Ads (`AW-…`). Empty disables. |
 | `PUBLIC_GOOGLE_ADS_LEAD_LABEL` / `_BOOKING_LABEL` | client | Conversion labels for form submit and calendar booking. |

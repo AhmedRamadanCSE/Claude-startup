@@ -1,10 +1,10 @@
-# Si-Partner website
+# Silicon Partner website
 
 Marketing website for a senior analog, mixed-signal and RF IC design services team in Cairo, Egypt: high-speed SerDes, DDR/LPDDR PHY, PLL/ADPLL, Bluetooth/BLE RF transceivers and UCIe die-to-die PHYs, from specification through tape-out and silicon bring-up.
 
 Built with [Astro 7](https://astro.build) as a static site with one server endpoint for the lead form. No client framework; three small scripts. Lighthouse 96–100 across performance, accessibility, best practices and SEO on the current build.
 
-> "Si-Partner" is the working brand name. Every value still to be supplied is marked `[LABEL: note]` in the source, highlighted on the site, and listed in `docs/PLACEHOLDERS.md`.
+> The brand is "Silicon Partner" (silicon-partner.com). Every value still to be supplied is marked `[LABEL: note]` in the source, highlighted on the site, and listed in `docs/PLACEHOLDERS.md`.
 
 ## Quick start
 

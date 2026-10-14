@@ -18,7 +18,7 @@ jobs:
       - run: npm run check
       - run: npm run build
         env:
-          PUBLIC_SITE_URL: https://example.com
+          PUBLIC_SITE_URL: https://silicon-partner.com
       - name: Placeholder report (non-blocking until launch)
         run: node scripts/lint-placeholders.mjs
       - name: Lighthouse

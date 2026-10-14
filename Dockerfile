@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
-ARG PUBLIC_SITE_URL=https://example.com
+ARG PUBLIC_SITE_URL=https://silicon-partner.com
 ENV PUBLIC_SITE_URL=$PUBLIC_SITE_URL
 RUN npm run build
 

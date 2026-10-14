@@ -96,7 +96,7 @@ export const engagementModels: readonly EngagementModel[] = [
 
 export const engagementPage = {
   seo: {
-    title: `Engagement Models: Dedicated Team, Fixed-Scope, IP Porting, Bring-Up | ${SITE.name}`,
+    title: `Engagement Models for Analog IC Design | ${SITE.name}`,
     description:
       'Four ways to work with an analog and RF design team: dedicated design team, fixed-scope block delivery, IP porting to a new process node, and silicon bring-up and characterization support. Pricing scoped after NDA.',
   },

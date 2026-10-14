@@ -37,7 +37,7 @@ export const capabilities: readonly Capability[] = [
     keywords: ['SerDes design services', 'high-speed SerDes', 'PAM4 transceiver design', 'PCIe PHY design', 'analog IC design services'],
     figure: 'eye',
     seo: {
-      title: `SerDes Design Services: NRZ & PAM4 Transceivers | ${SITE.name}`,
+      title: `SerDes Design Services: NRZ & PAM4 | ${SITE.name}`,
       description:
         'High-speed SerDes design services: transmitter, receiver, CDR and clocking for PCIe, Ethernet, USB and JESD-class links, from link budget through layout, compliance simulation and silicon correlation.',
     },
@@ -194,7 +194,7 @@ export const capabilities: readonly Capability[] = [
     keywords: ['PLL design services', 'ADPLL design', 'all-digital PLL', 'fractional-N PLL design', 'low-jitter PLL'],
     figure: 'pll',
     seo: {
-      title: `PLL & ADPLL Design Services: Low-Jitter Clocking | ${SITE.name}`,
+      title: `Low-Jitter PLL & ADPLL Design Services | ${SITE.name}`,
       description:
         'PLL and ADPLL design services: integer-N and fractional-N analog PLLs and all-digital PLLs (TDC + DCO) for SoC clocking, SerDes references and RF synthesis, specified in jitter, spurs, lock time and power.',
     },
@@ -273,7 +273,7 @@ export const capabilities: readonly Capability[] = [
     keywords: ['Bluetooth RF IC design', 'BLE transceiver design', 'RF IC design services', '2.4 GHz radio design', 'RFIC design Egypt'],
     figure: 'ble',
     seo: {
-      title: `Bluetooth & BLE RF Transceiver Design Services | ${SITE.name}`,
+      title: `Bluetooth & BLE RF Transceiver Design | ${SITE.name}`,
       description:
         'Bluetooth Low Energy RF transceiver design services: LNA, mixer, baseband filters and ADC, fractional-N synthesizer, PA and modulation path, designed against the Bluetooth Core Specification RF-PHY test cases.',
     },
@@ -350,7 +350,7 @@ export const capabilities: readonly Capability[] = [
     keywords: ['UCIe PHY design', 'die-to-die PHY', 'chiplet interconnect design', 'UCIe design services', 'D2D PHY'],
     figure: 'ucie',
     seo: {
-      title: `UCIe PHY Design Services: Die-to-Die Chiplet Interfaces | ${SITE.name}`,
+      title: `UCIe Die-to-Die PHY Design Services | ${SITE.name}`,
       description:
         'UCIe die-to-die PHY design services for chiplet systems: transmitters, receivers, forwarded clocking, lane repair and sideband for standard and advanced packaging, co-designed with the bump map and package.',
     },
@@ -427,7 +427,7 @@ export const capabilities: readonly Capability[] = [
     keywords: ['analog IC design services', 'mixed-signal design services', 'data converter design', 'power management IC design', 'full-custom layout services'],
     figure: 'ams',
     seo: {
-      title: `Analog & Mixed-Signal IC Design: ADC, DAC, PMIC, Layout | ${SITE.name}`,
+      title: `ADC, DAC, PMIC & Mixed-Signal IC Design | ${SITE.name}`,
       description:
         'Analog and mixed-signal IC design services: SAR, pipelined and delta-sigma ADCs, DACs, LDOs, DC-DC converters, bandgap references, oscillators, sensor front-ends and full-custom layout.',
     },
@@ -491,7 +491,7 @@ export const capabilities: readonly Capability[] = [
 
 export const capabilitiesIndex = {
   seo: {
-    title: `Capabilities: SerDes, DDR PHY, PLL/ADPLL, Bluetooth, UCIe | ${SITE.name}`,
+    title: `Capabilities: SerDes, DDR PHY, PLL, BLE, UCIe | ${SITE.name}`,
     description:
       'Analog, mixed-signal and RF IC design capabilities: high-speed SerDes, DDR/LPDDR PHY, PLL and ADPLL, Bluetooth/BLE RF transceivers, UCIe die-to-die PHYs, data converters, power management and full-custom layout.',
   },

@@ -12,7 +12,7 @@ export interface Leader {
 
 export default {
   seo: {
-    title: `Team: Senior Analog, Mixed-Signal & RF IC Designers | ${SITE.name}`,
+    title: `Team: Senior Analog & RF IC Designers | ${SITE.name}`,
     description:
       'Meet the technical leads behind our analog, mixed-signal and RF IC design services. Each lead has 15+ years designing and taping out production silicon in SerDes, DDR PHY, PLL/ADPLL and Bluetooth RF.',
   },

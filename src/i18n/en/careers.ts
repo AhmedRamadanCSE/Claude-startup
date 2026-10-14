@@ -2,7 +2,7 @@ import { SITE } from '../../site.config.ts';
 
 export default {
   seo: {
-    title: `Careers: Senior Analog, RF & Layout Engineers in Cairo | ${SITE.name}`,
+    title: `Careers: Analog, RF & Layout Engineers, Cairo | ${SITE.name}`,
     description:
       'Join a senior analog, mixed-signal and RF IC design team in Cairo, Egypt. Open roles for senior analog designers, RF IC designers and full-custom layout engineers with production tape-outs.',
   },

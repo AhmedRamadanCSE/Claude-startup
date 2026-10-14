@@ -2,7 +2,7 @@ import { SITE } from '../../site.config.ts';
 
 export default {
   seo: {
-    title: `Insights: Notes on SerDes, PLL, DDR PHY, UCIe and RF Design | ${SITE.name}`,
+    title: `Insights: SerDes, PLL, DDR PHY, UCIe, RF | ${SITE.name}`,
     description:
       'Technical notes from a working analog and RF design team: UCIe PHY practice, ADPLL versus analog PLL trade-offs, porting SerDes IP to new nodes, DDR PHY training and Bluetooth radio design.',
   },

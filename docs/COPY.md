@@ -11,7 +11,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 **Skip To Content:** Skip to content
 
-**Brand:** Si-Partner
+**Brand:** Silicon Partner
 
 **Tagline:** Analog, mixed-signal and RF IC design. Spec to silicon.
 
@@ -57,7 +57,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ### Footer
 
-**About:** Si-Partner is a senior analog, mixed-signal and RF IC design team based in Cairo, Egypt. We design integrated circuits from specification through tape-out and silicon bring-up. Fabrication is performed by the foundry you choose.
+**About:** Silicon Partner is a senior analog, mixed-signal and RF IC design team based in Cairo, Egypt. We design integrated circuits from specification through tape-out and silicon bring-up. Fabrication is performed by the foundry you choose.
 
 #### Columns
 
@@ -184,7 +184,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ### Seo
 
-**Title:** Analog, Mixed-Signal & RF IC Design Services | Si-Partner
+**Title:** Analog, Mixed-Signal & RF IC Design Services | Silicon Partner
 
 **Description:** Senior analog, mixed-signal and RF IC design services: high-speed SerDes, DDR/LPDDR PHY, PLL and ADPLL, Bluetooth/BLE RF transceivers and UCIe die-to-die PHYs, from specification through tape-out and silicon bring-up.
 
@@ -382,7 +382,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ### Seo
 
-**Title:** Capabilities: SerDes, DDR PHY, PLL/ADPLL, Bluetooth, UCIe | Si-Partner
+**Title:** Capabilities: SerDes, DDR PHY, PLL, BLE, UCIe | Silicon Partner
 
 **Description:** Analog, mixed-signal and RF IC design capabilities: high-speed SerDes, DDR/LPDDR PHY, PLL and ADPLL, Bluetooth/BLE RF transceivers, UCIe die-to-die PHYs, data converters, power management and full-custom layout.
 
@@ -457,7 +457,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ##### Seo
 
-**Title:** SerDes Design Services: NRZ & PAM4 Transceivers | Si-Partner
+**Title:** SerDes Design Services: NRZ & PAM4 | Silicon Partner
 
 **Description:** High-speed SerDes design services: transmitter, receiver, CDR and clocking for PCIe, Ethernet, USB and JESD-class links, from link budget through layout, compliance simulation and silicon correlation.
 
@@ -623,7 +623,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ##### Seo
 
-**Title:** DDR & LPDDR PHY Design Services | Si-Partner
+**Title:** DDR & LPDDR PHY Design Services | Silicon Partner
 
 **Description:** DDR4, DDR5, LPDDR4X and LPDDR5/5X PHY design services: I/O cells, DLL/PLL clocking, DQ/DQS and CA data paths, calibration and training, delivered with a DFI interface, LEF/LIB and SI/PI analysis.
 
@@ -776,7 +776,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ##### Seo
 
-**Title:** PLL & ADPLL Design Services: Low-Jitter Clocking | Si-Partner
+**Title:** Low-Jitter PLL & ADPLL Design Services | Silicon Partner
 
 **Description:** PLL and ADPLL design services: integer-N and fractional-N analog PLLs and all-digital PLLs (TDC + DCO) for SoC clocking, SerDes references and RF synthesis, specified in jitter, spurs, lock time and power.
 
@@ -941,7 +941,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ##### Seo
 
-**Title:** Bluetooth & BLE RF Transceiver Design Services | Si-Partner
+**Title:** Bluetooth & BLE RF Transceiver Design | Silicon Partner
 
 **Description:** Bluetooth Low Energy RF transceiver design services: LNA, mixer, baseband filters and ADC, fractional-N synthesizer, PA and modulation path, designed against the Bluetooth Core Specification RF-PHY test cases.
 
@@ -1099,7 +1099,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ##### Seo
 
-**Title:** UCIe PHY Design Services: Die-to-Die Chiplet Interfaces | Si-Partner
+**Title:** UCIe Die-to-Die PHY Design Services | Silicon Partner
 
 **Description:** UCIe die-to-die PHY design services for chiplet systems: transmitters, receivers, forwarded clocking, lane repair and sideband for standard and advanced packaging, co-designed with the bump map and package.
 
@@ -1252,7 +1252,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ##### Seo
 
-**Title:** Analog & Mixed-Signal IC Design: ADC, DAC, PMIC, Layout | Si-Partner
+**Title:** ADC, DAC, PMIC & Mixed-Signal IC Design | Silicon Partner
 
 **Description:** Analog and mixed-signal IC design services: SAR, pipelined and delta-sigma ADCs, DACs, LDOs, DC-DC converters, bandgap references, oscillators, sensor front-ends and full-custom layout.
 
@@ -1371,7 +1371,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ### Seo
 
-**Title:** Engagement Models: Dedicated Team, Fixed-Scope, IP Porting, Bring-Up | Si-Partner
+**Title:** Engagement Models for Analog IC Design | Silicon Partner
 
 **Description:** Four ways to work with an analog and RF design team: dedicated design team, fixed-scope block delivery, IP porting to a new process node, and silicon bring-up and characterization support. Pricing scoped after NDA.
 
@@ -1586,7 +1586,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ### Seo
 
-**Title:** Case Studies: Anonymized Analog & RF Design Projects | Si-Partner
+**Title:** Case Studies: Analog & RF IC Design | Silicon Partner
 
 **Description:** Anonymized case studies from analog, mixed-signal and RF IC design engagements: the challenge, our role and the measured result, with nodes and specifications listed where the client has approved them.
 
@@ -1639,7 +1639,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ### Seo
 
-**Title:** Security & IP Protection for Design Services | Si-Partner
+**Title:** Security & IP Protection for Design Services | Silicon Partner
 
 **Description:** How we protect client IP: NDA-first process, isolated per-client design environments, named-engineer access control, licensed EDA tools only, no reuse of client IP, export-control screening, and data deletion at project end.
 
@@ -1774,7 +1774,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ### Seo
 
-**Title:** Team: Senior Analog, Mixed-Signal & RF IC Designers | Si-Partner
+**Title:** Team: Senior Analog & RF IC Designers | Silicon Partner
 
 **Description:** Meet the technical leads behind our analog, mixed-signal and RF IC design services. Each lead has 15+ years designing and taping out production silicon in SerDes, DDR PHY, PLL/ADPLL and Bluetooth RF.
 
@@ -1784,7 +1784,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 **Title:** Designers who have taped out, leading designers who have taped out.
 
-**Lede:** Si-Partner is a new company built by senior engineers. Every technical lead has spent 15+ years designing production silicon. We hire only designers with tape-outs behind them, and we keep the team small enough that a lead reviews every block.
+**Lede:** Silicon Partner is a new company built by senior engineers. Every technical lead has spent 15+ years designing production silicon. We hire only designers with tape-outs behind them, and we keep the team small enough that a lead reviews every block.
 
 **Leaders Title:** Technical leadership
 
@@ -1931,7 +1931,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ### Seo
 
-**Title:** Insights: Notes on SerDes, PLL, DDR PHY, UCIe and RF Design | Si-Partner
+**Title:** Insights: SerDes, PLL, DDR PHY, UCIe, RF | Silicon Partner
 
 **Description:** Technical notes from a working analog and RF design team: UCIe PHY practice, ADPLL versus analog PLL trade-offs, porting SerDes IP to new nodes, DDR PHY training and Bluetooth radio design.
 
@@ -1962,7 +1962,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ### Seo
 
-**Title:** Careers: Senior Analog, RF & Layout Engineers in Cairo | Si-Partner
+**Title:** Careers: Analog, RF & Layout Engineers, Cairo | Silicon Partner
 
 **Description:** Join a senior analog, mixed-signal and RF IC design team in Cairo, Egypt. Open roles for senior analog designers, RF IC designers and full-custom layout engineers with production tape-outs.
 
@@ -1972,7 +1972,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 **Title:** We hire designers who have taped out.
 
-**Lede:** Si-Partner is a small team of senior engineers in Cairo. We work on SerDes, DDR PHY, PLL/ADPLL, Bluetooth radios and UCIe PHYs for clients in the US, Europe and Asia. If you have production silicon behind you and want to work with people who do too, read on.
+**Lede:** Silicon Partner is a small team of senior engineers in Cairo. We work on SerDes, DDR PHY, PLL/ADPLL, Bluetooth radios and UCIe PHYs for clients in the US, Europe and Asia. If you have production silicon behind you and want to work with people who do too, read on.
 
 ### Offer
 
@@ -2031,7 +2031,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 ### Seo
 
-**Title:** Request an NDA Call | Si-Partner
+**Title:** Request an NDA Call | Silicon Partner
 
 **Description:** Request an NDA call with a technical lead for SerDes, DDR PHY, PLL/ADPLL, Bluetooth RF or UCIe design. Short form, calendar booking, and a reply within one business day.
 
@@ -2272,15 +2272,15 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 #### Seo
 
-**Title:** Privacy Policy | Si-Partner
+**Title:** Privacy Policy | Silicon Partner
 
-**Description:** How Si-Partner collects, uses and protects personal data on this website and in business communications, including your rights under the GDPR.
+**Description:** How Silicon Partner collects, uses and protects personal data on this website and in business communications, including your rights under the GDPR.
 
 **Title:** Privacy policy
 
 **Updated:** [DATE: last updated, to be supplied]
 
-**Intro:** This policy explains how [LEGAL ENTITY NAME: to be supplied] ("Si-Partner", "we") processes personal data when you visit this website, contact us or do business with us. We keep it short and specific. Where the General Data Protection Regulation (GDPR) applies to you, this policy is written to meet it.
+**Intro:** This policy explains how [LEGAL ENTITY NAME: to be supplied] ("Silicon Partner", "we") processes personal data when you visit this website, contact us or do business with us. We keep it short and specific. Where the General Data Protection Regulation (GDPR) applies to you, this policy is written to meet it.
 
 #### Sections
 
@@ -2429,9 +2429,9 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 #### Seo
 
-**Title:** Terms of Use | Si-Partner
+**Title:** Terms of Use | Silicon Partner
 
-**Description:** Terms governing the use of the Si-Partner website. Design services are provided under separate written agreements.
+**Description:** Terms governing the use of the Silicon Partner website. Design services are provided under separate written agreements.
 
 **Title:** Terms of use
 
@@ -2512,9 +2512,9 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 #### Seo
 
-**Title:** Cookie Policy | Si-Partner
+**Title:** Cookie Policy | Silicon Partner
 
-**Description:** Every cookie and similar technology used on the Si-Partner website, what it does, how long it lasts and how to change your choice.
+**Description:** Every cookie and similar technology used on the Silicon Partner website, what it does, how long it lasts and how to change your choice.
 
 **Title:** Cookie policy
 
@@ -2543,7 +2543,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 
 - si_consent
-- Si-Partner (this site)
+- Silicon Partner (this site)
 - Stores your cookie choice so the banner is not shown again
 - 12 months
 
@@ -2551,7 +2551,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 
 - si_theme
-- Si-Partner (this site, local storage)
+- Silicon Partner (this site, local storage)
 - Remembers the light or dark theme you chose
 - Until cleared
 
@@ -2660,7 +2660,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 #### Seo
 
-**Title:** Request received | Si-Partner
+**Title:** Request received | Silicon Partner
 
 **Description:** Your NDA call request has been received. A technical lead will reply within one business day.
 
@@ -2700,7 +2700,7 @@ Placeholders use the form `[LABEL: note]`. See PLACEHOLDERS.md for the complete 
 
 #### Seo
 
-**Title:** Page not found | Si-Partner
+**Title:** Page not found | Silicon Partner
 
 **Description:** The page you requested does not exist.
 

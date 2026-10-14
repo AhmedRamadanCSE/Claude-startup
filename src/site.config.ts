@@ -6,8 +6,8 @@
  * Placeholders use the form LABEL: note inside square brackets. See docs/PLACEHOLDERS.md.
  */
 export const SITE = {
-  /** Working brand name. [BRAND_NAME: confirm final brand; "Si-Partner" is the working name] */
-  name: 'Si-Partner',
+  /** Brand name. Domain: silicon-partner.com. */
+  name: 'Silicon Partner',
   legalName: '[LEGAL ENTITY NAME: to be supplied]',
   tagline: 'Analog, mixed-signal and RF IC design. Spec to silicon.',
   description:

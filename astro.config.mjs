@@ -10,9 +10,9 @@ const { PUBLIC_SITE_URL } = loadEnv(process.env.NODE_ENV ?? 'production', proces
 
 /**
  * Site URL used for canonical links, sitemap, robots.txt and Open Graph.
- * Set PUBLIC_SITE_URL in .env (see .env.example). [SITE URL: to be supplied]
+ * Set PUBLIC_SITE_URL in .env (see .env.example); defaults to the production domain.
  */
-const site = PUBLIC_SITE_URL || 'https://example.com';
+const site = PUBLIC_SITE_URL || 'https://silicon-partner.com';
 const siteHost = new URL(site).hostname;
 
 export default defineConfig({

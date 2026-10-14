@@ -2,7 +2,7 @@ import { SITE } from '../../site.config.ts';
 
 export default {
   seo: {
-    title: `Case Studies: Anonymized Analog & RF Design Projects | ${SITE.name}`,
+    title: `Case Studies: Analog & RF IC Design | ${SITE.name}`,
     description:
       'Anonymized case studies from analog, mixed-signal and RF IC design engagements: the challenge, our role and the measured result, with nodes and specifications listed where the client has approved them.',
   },
