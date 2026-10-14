@@ -1,0 +1,33 @@
+---
+import Copy from './Copy.astro';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  as?: 'h1' | 'h2' | 'h3';
+  align?: 'start' | 'center';
+  class?: string;
+  id?: string;
+}
+
+const { eyebrow, title, lede, as: Heading = 'h2', align = 'start', class: className, id } = Astro.props;
+---
+
+<div class:list={['section-head', { 'section-head--center': align === 'center' }, className]}>
+  {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+  <Copy as={Heading} text={title} id={id} />
+  {lede && <Copy as="p" class="lede" text={lede} />}
+  <slot />
+</div>
+
+<style>
+  .section-head--center {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .section-head--center .lede {
+    margin-inline: auto;
+  }
+</style>

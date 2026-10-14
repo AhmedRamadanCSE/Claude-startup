@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+        env:
+          PUBLIC_SITE_URL: https://example.com
+      - name: Placeholder report (non-blocking until launch)
+        run: node scripts/lint-placeholders.mjs
+      - name: Lighthouse
+        run: |
+          (HOST=127.0.0.1 PORT=4321 node dist/server/entry.mjs &) && sleep 3
+          node scripts/lighthouse.mjs http://127.0.0.1:4321 / /capabilities/serdes/ /contact/

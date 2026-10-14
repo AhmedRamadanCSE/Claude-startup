@@ -1,0 +1,163 @@
+---
+/**
+ * DDR write timing: differential DQS strobe centred in the DQ data eyes,
+ * one DQ bit shown with per-bit skew before deskew, and the tDQSQ / skew
+ * annotations a PHY timing budget is built from.
+ */
+import { fmt } from './prng.ts';
+
+interface Props {
+  class?: string;
+  label?: string;
+  decorative?: boolean;
+}
+
+const { class: className, label = 'Illustrative DDR write timing: DQS centred in DQ data eyes, with per-bit skew annotation', decorative = false } = Astro.props;
+
+const W = 640;
+const H = 360;
+const x0 = 96;
+const bit = 72;
+const bits = 7;
+const amp = 18;
+
+const strobe = (y: number, start: number) => {
+  let d = `M${fmt(x0)},${fmt(y + amp)}`;
+  d += ` L${fmt(start)},${fmt(y + amp)}`;
+  for (let i = 0; i < 5; i++) {
+    const xs = start + i * bit;
+    d += ` L${fmt(xs)},${fmt(y - amp)} L${fmt(xs + bit / 2)},${fmt(y - amp)} L${fmt(xs + bit / 2)},${fmt(y + amp)} L${fmt(xs + bit)},${fmt(y + amp)}`;
+  }
+  return d;
+};
+
+const strobeInv = (y: number, start: number) => {
+  let d = `M${fmt(x0)},${fmt(y - amp)}`;
+  d += ` L${fmt(start)},${fmt(y - amp)}`;
+  for (let i = 0; i < 5; i++) {
+    const xs = start + i * bit;
+    d += ` L${fmt(xs)},${fmt(y + amp)} L${fmt(xs + bit / 2)},${fmt(y + amp)} L${fmt(xs + bit / 2)},${fmt(y - amp)} L${fmt(xs + bit)},${fmt(y - amp)}`;
+  }
+  return d;
+};
+
+/** Bus-style data waveform: parallel rails with X crossings at each bit boundary. */
+const bus = (y: number, offset: number) => {
+  const cross = 7;
+  let top = `M${fmt(x0 + offset)},${fmt(y - amp)}`;
+  let bot = `M${fmt(x0 + offset)},${fmt(y + amp)}`;
+  for (let i = 0; i < bits; i++) {
+    const xs = x0 + offset + i * bit;
+    const xe = xs + bit;
+    top += ` L${fmt(xe - cross)},${fmt(y - amp)} L${fmt(xe + cross)},${fmt(y + amp)}`;
+    bot += ` L${fmt(xe - cross)},${fmt(y + amp)} L${fmt(xe + cross)},${fmt(y - amp)}`;
+    // swap rails after a crossing
+    [top, bot] = [bot, top];
+  }
+  return `${top} ${bot}`;
+};
+
+const yCk = 56;
+const yDqs = 126;
+const yDq0 = 196;
+const yDq1 = 256;
+const dqsStart = x0 + bit * 1.5;
+const skew = 9;
+---
+
+<svg class:list={['ddr', className]} viewBox={`0 0 ${W} ${H}`} role={decorative ? undefined : 'img'} aria-label={decorative ? undefined : label} aria-hidden={decorative ? 'true' : undefined} focusable="false">
+  <g class="ddr__grid">
+    {Array.from({ length: bits + 1 }, (_, i) => <line x1={x0 + i * bit} x2={x0 + i * bit} y1="30" y2="300" />)}
+  </g>
+
+  <text class="ddr__label" x="20" y={yCk + 4}>CK_t/c</text>
+  <path class="ddr__wave ddr__wave--muted" d={strobe(yCk, x0)} />
+  <path class="ddr__wave ddr__wave--muted" d={strobeInv(yCk, x0)} />
+
+  <text class="ddr__label" x="20" y={yDqs + 4}>DQS_t/c</text>
+  <path class="ddr__wave ddr__wave--dqs" d={strobe(yDqs, dqsStart)} />
+  <path class="ddr__wave ddr__wave--dqs2" d={strobeInv(yDqs, dqsStart)} />
+
+  <text class="ddr__label" x="20" y={yDq0 + 4}>DQ[7:1]</text>
+  <path class="ddr__wave ddr__wave--dq" d={bus(yDq0, bit)} />
+
+  <text class="ddr__label" x="20" y={yDq1 + 4}>DQ[0]</text>
+  <path class="ddr__wave ddr__wave--dq ddr__wave--skew" d={bus(yDq1, bit + skew)} />
+
+  <g class="ddr__annot">
+    {Array.from({ length: 4 }, (_, i) => (
+      <line x1={dqsStart + i * bit} x2={dqsStart + i * bit} y1={yDqs + amp + 6} y2={yDq1 + amp + 6} />
+    ))}
+    <line x1={x0 + 2 * bit} x2={x0 + 2 * bit + skew} y1={yDq1 + amp + 18} y2={yDq1 + amp + 18} class="ddr__skew" />
+    <text x={x0 + 2 * bit + skew + 6} y={yDq1 + amp + 22}>per-bit skew → deskew</text>
+    <line x1={dqsStart} x2={x0 + 2 * bit} y1={yDqs - amp - 10} y2={yDqs - amp - 10} class="ddr__skew" />
+    <text x={dqsStart} y={yDqs - amp - 16}>tDQSS</text>
+  </g>
+
+  <text class="ddr__label ddr__label--foot" x={x0} y="340">write: DQS centre-aligned in the DQ eye · [DATA RATE] Mb/s per pin</text>
+</svg>
+
+<style>
+  .ddr {
+    width: 100%;
+    height: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .ddr__grid line {
+    stroke: var(--g-grid);
+  }
+
+  .ddr__label {
+    fill: var(--g-label);
+  }
+
+  .ddr__label--foot {
+    letter-spacing: 0.04em;
+  }
+
+  .ddr__wave {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+
+  .ddr__wave--muted {
+    stroke: var(--g-trace-2);
+    opacity: 0.6;
+  }
+
+  .ddr__wave--dqs {
+    stroke: var(--g-trace);
+  }
+
+  .ddr__wave--dqs2 {
+    stroke: var(--g-trace);
+    opacity: 0.45;
+  }
+
+  .ddr__wave--dq {
+    stroke: var(--color-text);
+    opacity: 0.85;
+  }
+
+  .ddr__wave--skew {
+    stroke-dasharray: 3 2;
+  }
+
+  .ddr__annot line {
+    stroke: var(--g-axis);
+    stroke-dasharray: 2 3;
+  }
+
+  .ddr__annot .ddr__skew {
+    stroke: var(--color-accent);
+    stroke-dasharray: none;
+    stroke-width: 2;
+  }
+
+  .ddr__annot text {
+    fill: var(--color-accent);
+  }
+</style>

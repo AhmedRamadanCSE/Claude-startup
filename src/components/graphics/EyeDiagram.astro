@@ -1,0 +1,211 @@
+---
+/**
+ * Procedurally generated NRZ eye diagram: superimposed bit transitions with
+ * jitter, ISI and amplitude noise. Two unit intervals are shown. A sampling
+ * cursor drifts slowly across the eye (CSS animation; off under reduced motion).
+ */
+import { createRng, fmt } from './prng.ts';
+
+interface Props {
+  class?: string;
+  id?: string;
+  label?: string;
+  traces?: number;
+  seed?: number;
+  decorative?: boolean;
+}
+
+const { class: className, id = 'eye-diagram', label = 'Illustrative NRZ eye diagram with mask', traces = 56, seed = 7, decorative = false } = Astro.props;
+
+const W = 640;
+const H = 360;
+const x0 = 44;
+const x1 = 628;
+const yTop = 24;
+const yBot = 316;
+const UI = (x1 - x0) / 2;
+const yc = (yTop + yBot) / 2;
+const A = (yBot - yTop) / 2 - 36;
+
+const rng = createRng(seed);
+const paths: string[] = [];
+const transitionWidth = 0.4;
+
+for (let i = 0; i < traces; i++) {
+  const bits = [0, 1, 2, 3].map(() => (rng.next() < 0.5 ? -1 : 1));
+  const amp = A * (0.86 + 0.14 * rng.next());
+  const noise = () => rng.gauss() * 0.02 * A;
+  const levelFor = (k: number) => {
+    const b = bits[k] ?? 1;
+    const prev = bits[k - 1] ?? b;
+    const isi = prev === b ? 0.97 + 0.03 * rng.next() : 0.88 + 0.08 * rng.next();
+    return yc - b * amp * isi + noise();
+  };
+
+  let d = '';
+  let yPrev = levelFor(0);
+  const xs = x0 - 0.3 * UI;
+  d += `M${fmt(xs)},${fmt(yPrev)}`;
+  for (let k = 1; k < bits.length; k++) {
+    const xb = x0 + (k - 1) * UI + rng.gauss() * 0.045 * UI;
+    const yNext = levelFor(k);
+    if (bits[k] !== bits[k - 1]) {
+      const w = transitionWidth * UI;
+      const xa = xb - w / 2;
+      const xz = xb + w / 2;
+      d += ` L${fmt(xa)},${fmt(yPrev)} C${fmt(xa + 0.5 * w)},${fmt(yPrev)} ${fmt(xz - 0.5 * w)},${fmt(yNext)} ${fmt(xz)},${fmt(yNext)}`;
+    }
+    yPrev = yNext;
+  }
+  d += ` L${fmt(x1 + 0.3 * UI)},${fmt(yPrev)}`;
+  paths.push(d);
+}
+
+const maskHalfWidth = 0.2 * UI;
+const maskHalfHeight = 0.28 * A;
+const maskFor = (cx: number) =>
+  [
+    [cx - maskHalfWidth, yc],
+    [cx - maskHalfWidth * 0.5, yc - maskHalfHeight],
+    [cx + maskHalfWidth * 0.5, yc - maskHalfHeight],
+    [cx + maskHalfWidth, yc],
+    [cx + maskHalfWidth * 0.5, yc + maskHalfHeight],
+    [cx - maskHalfWidth * 0.5, yc + maskHalfHeight],
+  ]
+    .map(([x, y]) => `${fmt(x!)},${fmt(y!)}`)
+    .join(' ');
+
+const ticks = [0, 0.5, 1, 1.5, 2];
+const clipId = `${id}-clip`;
+---
+
+<svg
+  class:list={['eye', className]}
+  viewBox={`0 0 ${W} ${H}`}
+  role={decorative ? undefined : 'img'}
+  aria-label={decorative ? undefined : label}
+  aria-hidden={decorative ? 'true' : undefined}
+  focusable="false"
+>
+  <defs>
+    <clipPath id={clipId}><rect x={x0} y={yTop} width={x1 - x0} height={yBot - yTop} /></clipPath>
+  </defs>
+
+  <g class="eye__grid">
+    {ticks.map((t) => <line x1={x0 + t * UI} x2={x0 + t * UI} y1={yTop} y2={yBot} />)}
+    {[-1, -0.5, 0, 0.5, 1].map((v) => <line x1={x0} x2={x1} y1={yc - v * A} y2={yc - v * A} />)}
+  </g>
+  <rect class="eye__frame" x={x0} y={yTop} width={x1 - x0} height={yBot - yTop} />
+
+  <g class="eye__traces" clip-path={`url(#${clipId})`}>
+    {paths.map((d, i) => <path d={d} style={`--i:${i}`} />)}
+  </g>
+
+  <g class="eye__mask" clip-path={`url(#${clipId})`}>
+    <polygon points={maskFor(x0 + 0.5 * UI)} />
+    <polygon points={maskFor(x0 + 1.5 * UI)} />
+  </g>
+
+  <g class="eye__cursor" clip-path={`url(#${clipId})`}>
+    <line x1={x0 + 0.5 * UI} x2={x0 + 0.5 * UI} y1={yTop} y2={yBot} />
+    <circle cx={x0 + 0.5 * UI} cy={yc} r="3.5" />
+  </g>
+
+  <g class="eye__labels">
+    {ticks.map((t) => (
+      <text x={x0 + t * UI} y={yBot + 20} text-anchor="middle">{t === 0 ? '0' : `${t} UI`}</text>
+    ))}
+    <text x={x0 - 8} y={yc - A + 4} text-anchor="end">+V</text>
+    <text x={x0 - 8} y={yc + 4} text-anchor="end">0</text>
+    <text x={x0 - 8} y={yc + A + 4} text-anchor="end">−V</text>
+    <text x={x1} y={yTop - 8} text-anchor="end" class="eye__tag">NRZ · mask · sampling point</text>
+  </g>
+</svg>
+
+<style>
+  .eye {
+    width: 100%;
+    height: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .eye__grid line {
+    stroke: var(--g-grid);
+    stroke-width: 1;
+  }
+
+  .eye__frame {
+    fill: none;
+    stroke: var(--g-axis);
+    stroke-width: 1;
+  }
+
+  .eye__traces path {
+    fill: none;
+    stroke: var(--g-trace);
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    opacity: 0.55;
+    animation: eye-fade 500ms var(--ease-out) both;
+    animation-delay: calc(var(--i) * 10ms);
+  }
+
+  .eye__mask polygon {
+    fill: var(--g-mask);
+    fill-opacity: 0.18;
+    stroke: var(--g-mask);
+    stroke-width: 1;
+    stroke-dasharray: 4 3;
+  }
+
+  .eye__cursor line {
+    stroke: var(--color-text);
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+    opacity: 0.7;
+  }
+
+  .eye__cursor circle {
+    fill: var(--color-text);
+  }
+
+  .eye__cursor {
+    animation: eye-scan 7s ease-in-out infinite alternate;
+  }
+
+  .eye__labels text {
+    fill: var(--g-label);
+  }
+
+  .eye__tag {
+    letter-spacing: 0.04em;
+  }
+
+  @keyframes eye-fade {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes eye-scan {
+    from {
+      transform: translateX(-14px);
+    }
+
+    to {
+      transform: translateX(14px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eye__traces path,
+    .eye__cursor {
+      animation: none;
+    }
+  }
+</style>

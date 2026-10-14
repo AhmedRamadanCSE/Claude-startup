@@ -1,0 +1,137 @@
+---
+/**
+ * 2.4 GHz BLE band: 40 channels, three advertising channels highlighted, a
+ * GFSK spectral lobe on the active channel and the in-band emission mask.
+ */
+import { createRng, fmt } from './prng.ts';
+
+interface Props {
+  class?: string;
+  label?: string;
+  decorative?: boolean;
+}
+
+const { class: className, label = 'Illustrative Bluetooth LE band plan with a GFSK spectrum and in-band emission mask', decorative = false } = Astro.props;
+
+const W = 640;
+const H = 360;
+const x0 = 56;
+const x1 = 624;
+const y0 = 24;
+const y1 = 300;
+const fLo = 2399;
+const fHi = 2484;
+const dbLo = -70;
+const dbHi = 5;
+
+const xOf = (f: number) => x0 + ((f - fLo) / (fHi - fLo)) * (x1 - x0);
+const yOf = (db: number) => y1 - ((db - dbLo) / (dbHi - dbLo)) * (y1 - y0);
+
+const rng = createRng(11);
+const channels = Array.from({ length: 40 }, (_, i) => ({ f: 2402 + 2 * i, i, adv: i === 0 || i === 12 || i === 39, level: -56 + rng.next() * 8 }));
+const active = 2440;
+
+const lobe = (fc: number) => {
+  const out: string[] = [];
+  for (let i = 0; i <= 120; i++) {
+    const d = -3 + (6 * i) / 120;
+    const db = Math.max(dbLo, -22 * d * d + (Math.abs(d) > 1.5 ? -6 : 0));
+    out.push(`${i === 0 ? 'M' : 'L'}${fmt(xOf(fc + d))},${fmt(yOf(db))}`);
+  }
+  return out.join(' ') + ` L${fmt(xOf(fc + 3))},${fmt(y1)} L${fmt(xOf(fc - 3))},${fmt(y1)} Z`;
+};
+
+const mask = (fc: number) =>
+  [
+    [fc - 3.5, -30],
+    [fc - 3, -30],
+    [fc - 3, -20],
+    [fc - 2, -20],
+    [fc - 2, 0],
+    [fc + 2, 0],
+    [fc + 2, -20],
+    [fc + 3, -20],
+    [fc + 3, -30],
+    [fc + 3.5, -30],
+  ]
+    .map(([f, db], i) => `${i === 0 ? 'M' : 'L'}${fmt(xOf(f!))},${fmt(yOf(db!))}`)
+    .join(' ');
+---
+
+<svg class:list={['rf', className]} viewBox={`0 0 ${W} ${H}`} role={decorative ? undefined : 'img'} aria-label={decorative ? undefined : label} aria-hidden={decorative ? 'true' : undefined} focusable="false">
+  <g class="rf__grid">
+    {[-60, -40, -20, 0].map((db) => <line x1={x0} x2={x1} y1={yOf(db)} y2={yOf(db)} />)}
+  </g>
+  <rect class="rf__frame" x={x0} y={y0} width={x1 - x0} height={y1 - y0} />
+
+  {channels.map((c) => (
+    <rect class={c.adv ? 'rf__ch rf__ch--adv' : 'rf__ch'} x={xOf(c.f) - 3} y={yOf(c.level)} width="6" height={y1 - yOf(c.level)} />
+  ))}
+
+  <path class="rf__lobe" d={lobe(active)} />
+  <path class="rf__mask" d={mask(active)} />
+
+  <g class="rf__labels">
+    <text x={xOf(2402)} y={y1 + 18} text-anchor="middle">2402</text>
+    <text x={xOf(2426)} y={y1 + 18} text-anchor="middle">2426</text>
+    <text x={xOf(active)} y={y1 + 18} text-anchor="middle" class="rf__accent">2440</text>
+    <text x={xOf(2480)} y={y1 + 18} text-anchor="middle">2480 MHz</text>
+    {[-60, -40, -20, 0].map((db) => <text x={x0 - 8} y={yOf(db) + 4} text-anchor="end">{db}</text>)}
+    <text x={x0} y={y0 - 8}>dBm (rel.)</text>
+    <text x={xOf(2402)} y={yOf(-50) - 8} text-anchor="middle" class="rf__accent">adv 37</text>
+    <text x={xOf(2426)} y={yOf(-50) - 8} text-anchor="middle" class="rf__accent">adv 38</text>
+    <text x={xOf(2480)} y={yOf(-50) - 8} text-anchor="middle" class="rf__accent">adv 39</text>
+    <text x={xOf(active + 3.6)} y={yOf(-20) + 4} text-anchor="start">in-band mask</text>
+    <text x={x0} y={y1 + 36}>LE 1M · GFSK · 40 channels at 2 MHz spacing</text>
+  </g>
+</svg>
+
+<style>
+  .rf {
+    width: 100%;
+    height: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .rf__grid line {
+    stroke: var(--g-grid);
+  }
+
+  .rf__frame {
+    fill: none;
+    stroke: var(--g-axis);
+  }
+
+  .rf__ch {
+    fill: var(--g-trace-2);
+    opacity: 0.45;
+  }
+
+  .rf__ch--adv {
+    fill: var(--g-trace);
+    opacity: 0.8;
+  }
+
+  .rf__lobe {
+    fill: var(--color-accent-soft);
+    stroke: var(--g-trace);
+    stroke-width: 1.8;
+    stroke-linejoin: round;
+  }
+
+  .rf__mask {
+    fill: none;
+    stroke: var(--g-mask);
+    stroke-width: 1.2;
+    stroke-dasharray: 4 3;
+  }
+
+  .rf__labels text {
+    fill: var(--g-label);
+  }
+
+  .rf__accent {
+    fill: var(--color-accent) !important;
+  }
+</style>

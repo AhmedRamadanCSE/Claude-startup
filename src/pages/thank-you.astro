@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import Button from '../components/Button.astro';
+import Copy from '../components/Copy.astro';
+import CalendarEmbed from '../components/CalendarEmbed.astro';
+import { getDictionary, localizePath } from '../i18n/index.ts';
+import { routes } from '../lib/routes.ts';
+
+const lang = Astro.currentLocale ?? 'en';
+const dict = getDictionary(lang);
+const t = dict.misc.thankYou;
+const l = (p: string) => localizePath(p, lang);
+---
+
+<Base title={t.seo.title} description={t.seo.description} path={l(routes.thankYou)} noindex>
+  <section class="section">
+    <div class="container container--narrow stack stack--lg">
+      <div class="stack">
+        <p class="eyebrow">{t.eyebrow}</p>
+        <h1>{t.title}</h1>
+        <Copy as="p" class="lede" text={t.body} />
+        <p class="cluster">
+          <Button href="#calendar" size="lg">{t.calendarCta}</Button>
+          <Button href={l('/')} variant="secondary" size="lg">{t.homeCta}</Button>
+        </p>
+      </div>
+      <div>
+        <h2 class="eyebrow">{t.meanwhile}</h2>
+        <ul class="spec-list mt-4">
+          {t.links.map((link) => <li><a href={l(link.href)}>{link.label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+  <section class="section section--tint">
+    <div class="container container--narrow">
+      <CalendarEmbed locale={lang} />
+    </div>
+  </section>
+  <script>
+    // Conversion for the no-JS fallback path (server redirect after a successful post).
+    if (document.referrer.includes('/contact')) window.siTrack?.('lead_submit', { method: 'redirect' });
+  </script>
+</Base>

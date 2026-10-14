@@ -1,0 +1,120 @@
+---
+/**
+ * ADC transfer function: ideal 4-bit staircase against the ideal line, with a
+ * measured-looking staircase showing DNL/INL deviations.
+ */
+import { createRng, fmt } from './prng.ts';
+
+interface Props {
+  class?: string;
+  label?: string;
+  decorative?: boolean;
+}
+
+const { class: className, label = 'Illustrative ADC transfer function with DNL and INL deviations', decorative = false } = Astro.props;
+
+const W = 640;
+const H = 360;
+const x0 = 64;
+const x1 = 600;
+const y0 = 24;
+const y1 = 300;
+const codes = 16;
+const step = (x1 - x0) / codes;
+const rise = (y1 - y0) / codes;
+
+const rng = createRng(3);
+let dIdeal = `M${fmt(x0)},${fmt(y1)}`;
+let dReal = `M${fmt(x0)},${fmt(y1)}`;
+let accum = 0;
+const dnls: number[] = [];
+for (let i = 0; i < codes; i++) {
+  const xs = x0 + i * step;
+  const y = y1 - (i + 1) * rise;
+  dIdeal += ` L${fmt(xs + step)},${fmt(y + rise)} L${fmt(xs + step)},${fmt(y)}`;
+  const dnl = (rng.next() - 0.5) * 0.6;
+  dnls.push(dnl);
+  accum += dnl;
+  const xr = xs + step + accum * step;
+  dReal += ` L${fmt(xr)},${fmt(y + rise)} L${fmt(xr)},${fmt(y)}`;
+}
+
+const worstIdx = dnls.reduce((best, v, i) => (Math.abs(v) > Math.abs(dnls[best] ?? 0) ? i : best), 0);
+const worstX = x0 + (worstIdx + 1) * step;
+const worstY = y1 - (worstIdx + 1) * rise;
+---
+
+<svg class:list={['adc', className]} viewBox={`0 0 ${W} ${H}`} role={decorative ? undefined : 'img'} aria-label={decorative ? undefined : label} aria-hidden={decorative ? 'true' : undefined} focusable="false">
+  <g class="adc__grid">
+    {Array.from({ length: codes + 1 }, (_, i) => <line x1={x0 + i * step} x2={x0 + i * step} y1={y0} y2={y1} />)}
+    {Array.from({ length: codes + 1 }, (_, i) => <line x1={x0} x2={x1} y1={y1 - i * rise} y2={y1 - i * rise} />)}
+  </g>
+  <rect class="adc__frame" x={x0} y={y0} width={x1 - x0} height={y1 - y0} />
+  <line class="adc__line" x1={x0} x2={x1} y1={y1} y2={y0} />
+  <path class="adc__ideal" d={dIdeal} />
+  <path class="adc__real" d={dReal} />
+
+  <g class="adc__annot">
+    <line x1={worstX} x2={worstX + step * (dnls[worstIdx] ?? 0)} y1={worstY + rise / 2} y2={worstY + rise / 2} />
+    <text x={worstX + 10} y={worstY - 6}>DNL</text>
+  </g>
+
+  <g class="adc__labels">
+    <text x={x0} y={y0 - 8}>output code</text>
+    <text x={x1} y={y1 + 18} text-anchor="end">input (V)</text>
+    <text x={x0 - 8} y={y1 + 4} text-anchor="end">0</text>
+    <text x={x0 - 8} y={y0 + 4} text-anchor="end">2ⁿ−1</text>
+    <text x={x0 + 8} y={y1 - 12}>1 LSB</text>
+    <text x={x0} y={y1 + 36}>INL / DNL · [RESOLUTION] bit · [RATE] MS/s</text>
+  </g>
+</svg>
+
+<style>
+  .adc {
+    width: 100%;
+    height: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .adc__grid line {
+    stroke: var(--g-grid);
+  }
+
+  .adc__frame {
+    fill: none;
+    stroke: var(--g-axis);
+  }
+
+  .adc__line {
+    stroke: var(--g-trace-2);
+    stroke-dasharray: 3 4;
+  }
+
+  .adc__ideal {
+    fill: none;
+    stroke: var(--g-trace-2);
+    stroke-width: 1;
+    opacity: 0.6;
+  }
+
+  .adc__real {
+    fill: none;
+    stroke: var(--g-trace);
+    stroke-width: 1.8;
+    stroke-linejoin: round;
+  }
+
+  .adc__annot line {
+    stroke: var(--color-accent);
+    stroke-width: 2;
+  }
+
+  .adc__annot text {
+    fill: var(--color-accent);
+  }
+
+  .adc__labels text {
+    fill: var(--g-label);
+  }
+</style>

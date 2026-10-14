@@ -1,0 +1,89 @@
+---
+import '../styles/tokens.css';
+import '../styles/base.css';
+import { Font } from 'astro:assets';
+import { PUBLIC_SHOW_PLACEHOLDERS } from 'astro:env/client';
+import Seo from '../components/Seo.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import CookieConsent from '../components/CookieConsent.astro';
+import { getDictionary } from '../i18n/index.ts';
+import { LOCALES, DEFAULT_LOCALE } from '../i18n/config.ts';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  ogKey?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>[];
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  mainClass?: string;
+}
+
+const { title, description, path, ogKey, type, noindex, jsonLd, publishedTime, modifiedTime, mainClass } = Astro.props;
+const lang = Astro.currentLocale ?? DEFAULT_LOCALE;
+const meta = LOCALES[lang] ?? LOCALES[DEFAULT_LOCALE]!;
+const t = getDictionary(lang).common;
+---
+
+<!doctype html>
+<html lang={meta.htmlLang} dir={meta.dir} data-theme="dark" data-placeholders={PUBLIC_SHOW_PLACEHOLDERS ? 'visible' : 'hidden'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // Theme init before paint: stored choice wins; the design is dark-first.
+      (function () {
+        try {
+          var s = localStorage.getItem('si_theme');
+          document.documentElement.dataset.theme = s === 'light' ? 'light' : 'dark';
+        } catch (e) {}
+      })();
+    </script>
+    <Font cssVariable="--font-heading" preload />
+    <Font cssVariable="--font-body" preload />
+    <Font cssVariable="--font-mono" />
+    <Seo
+      title={title}
+      description={description}
+      path={path}
+      ogKey={ogKey}
+      type={type}
+      noindex={noindex}
+      locale={lang}
+      jsonLd={jsonLd}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#0a0e13" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t.skipToContent}</a>
+    <Header locale={lang} />
+    <main id="main" class={mainClass} tabindex="-1">
+      <slot />
+    </main>
+    <Footer locale={lang} />
+    <CookieConsent locale={lang} />
+  </body>
+</html>
+
+<style is:global>
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1 0 auto;
+    outline: none;
+  }
+</style>

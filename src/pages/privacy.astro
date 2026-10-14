@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import LegalDoc from '../components/LegalDoc.astro';
+import { getDictionary, localizePath } from '../i18n/index.ts';
+import { routes } from '../lib/routes.ts';
+
+const lang = Astro.currentLocale ?? 'en';
+const dict = getDictionary(lang);
+const doc = dict.legal.privacy;
+const l = (p: string) => localizePath(p, lang);
+const path = l(routes.privacy);
+---
+
+<Base title={doc.seo.title} description={doc.seo.description} path={path} ogKey="legal">
+  <section class="section">
+    <div class="container container--narrow">
+      <Breadcrumbs items={[{ name: doc.title, path }]} locale={lang} />
+      <LegalDoc doc={doc} />
+    </div>
+  </section>
+</Base>

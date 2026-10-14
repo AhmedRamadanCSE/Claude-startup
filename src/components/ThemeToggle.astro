@@ -1,0 +1,81 @@
+---
+import { getDictionary } from '../i18n/index.ts';
+
+interface Props {
+  locale?: string;
+}
+
+const { locale } = Astro.props;
+const t = getDictionary(locale ?? Astro.currentLocale).common.theme;
+---
+
+<button type="button" class="theme-toggle" id="theme-toggle" aria-label={t.toLight} data-label-dark={t.toDark} data-label-light={t.toLight}>
+  <svg class="theme-toggle__icon theme-toggle__icon--sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+  </svg>
+  <svg class="theme-toggle__icon theme-toggle__icon--moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+  </svg>
+</button>
+
+<script>
+  const btn = document.getElementById('theme-toggle');
+  const root = document.documentElement;
+  const sync = () => {
+    const dark = root.dataset.theme !== 'light';
+    btn?.setAttribute('aria-label', dark ? btn.dataset.labelLight ?? '' : btn.dataset.labelDark ?? '');
+  };
+  btn?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('si_theme', next);
+    } catch {
+      /* storage unavailable */
+    }
+    sync();
+  });
+  sync();
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    border: 1px solid transparent;
+  }
+
+  .theme-toggle:hover {
+    color: var(--color-text);
+    background: var(--color-surface-2);
+  }
+
+  .theme-toggle__icon {
+    grid-area: 1 / 1;
+    transition: opacity var(--duration-fast) var(--ease-out), transform var(--duration-base) var(--ease-out);
+  }
+
+  .theme-toggle__icon--sun {
+    opacity: 1;
+  }
+
+  .theme-toggle__icon--moon {
+    opacity: 0;
+    transform: rotate(-30deg);
+  }
+
+  :global(:root[data-theme='light']) .theme-toggle__icon--sun {
+    opacity: 0;
+    transform: rotate(30deg);
+  }
+
+  :global(:root[data-theme='light']) .theme-toggle__icon--moon {
+    opacity: 1;
+    transform: none;
+  }
+</style>

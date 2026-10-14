@@ -1,0 +1,66 @@
+---
+import { getDictionary } from '../i18n/index.ts';
+import { breadcrumbLd, graph } from '../lib/seo.ts';
+
+interface Props {
+  items: { name: string; path: string }[];
+  locale?: string;
+}
+
+const { items, locale } = Astro.props;
+const t = getDictionary(locale ?? Astro.currentLocale).common;
+const all = [{ name: t.breadcrumbs.home, path: '/' }, ...items];
+const ld = graph([breadcrumbLd(Astro.site, all)]);
+---
+
+<nav class="crumbs" aria-label={t.breadcrumbs.label}>
+  <ol>
+    {
+      all.map((item, i) => (
+        <li>
+          {i < all.length - 1 ? (
+            <a href={item.path}>{item.name}</a>
+          ) : (
+            <span aria-current="page">{item.name}</span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+<script type="application/ld+json" set:html={JSON.stringify(ld)} />
+
+<style>
+  .crumbs {
+    font-size: var(--text-xs);
+    font-family: var(--font-mono);
+    color: var(--color-text-faint);
+    margin-block-end: var(--space-6);
+  }
+
+  ol {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  li + li::before {
+    content: '/';
+    margin-inline-end: 0.4rem;
+    opacity: 0.6;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  [aria-current] {
+    color: var(--color-text-muted);
+  }
+</style>

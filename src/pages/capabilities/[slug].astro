@@ -1,0 +1,162 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Copy from '../../components/Copy.astro';
+import SpecTable from '../../components/SpecTable.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import CapabilityFigure from '../../components/graphics/CapabilityFigure.astro';
+import { getDictionary, localizePath } from '../../i18n/index.ts';
+import { capabilities } from '../../i18n/en/capabilities.ts';
+import { routes } from '../../lib/routes.ts';
+import { serviceLd, breadcrumbLd } from '../../lib/seo.ts';
+
+export const getStaticPaths = (() => capabilities.map((cap) => ({ params: { slug: cap.slug } }))) satisfies GetStaticPaths;
+
+const lang = Astro.currentLocale ?? 'en';
+const dict = getDictionary(lang);
+const c = dict.common;
+const cap = dict.capabilities.find((x) => x.slug === Astro.params.slug)!;
+const l = (p: string) => localizePath(p, lang);
+const path = l(routes.capability(cap.slug));
+const related = dict.capabilities.filter((x) => x.slug !== cap.slug);
+
+const jsonLd = [
+  serviceLd(Astro.site, { path, name: cap.name, description: cap.seo.description, serviceType: `${cap.name} design services`, keywords: cap.keywords }),
+  breadcrumbLd(Astro.site, [
+    { name: c.breadcrumbs.home, path: l('/') },
+    { name: c.nav.capabilities, path: l(routes.capabilities) },
+    { name: cap.name, path },
+  ]),
+];
+---
+
+<Base title={cap.seo.title} description={cap.seo.description} path={path} ogKey={`capabilities-${cap.slug}`} jsonLd={jsonLd}>
+  <section class="section cap-hero">
+    <div class="container">
+      <Breadcrumbs items={[{ name: c.nav.capabilities, path: l(routes.capabilities) }, { name: cap.name, path }]} locale={lang} />
+      <div class="split">
+        <div class="stack">
+          <p class="eyebrow">{cap.hero.eyebrow}</p>
+          <h1><Copy text={cap.hero.title} /></h1>
+          <Copy as="p" class="lede" text={cap.hero.lede} />
+          <p class="cluster cap-hero__tags">
+            {cap.keywords.slice(0, 3).map((k) => <span class="badge">{k}</span>)}
+          </p>
+        </div>
+        <CapabilityFigure kind={cap.figure} decorative caption={c.labels.ndaNote} />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint" aria-labelledby="problems-title">
+    <div class="container">
+      <h2 id="problems-title" class="h2">{c.labels.problems}</h2>
+      <ol class="problems" role="list">
+        {cap.problems.map((p, i) => (
+          <li class="problem">
+            <span class="mono problem__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <Copy as="h3" class="h4" text={p.title} />
+              <Copy as="p" class="muted" text={p.body} />
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="specs-title">
+    <div class="container split">
+      <div class="stack">
+        <h2 id="specs-title" class="h2">{c.labels.typicalSpecs}</h2>
+        <p class="muted">{c.labels.ndaNote}</p>
+        <h3 class="h4 mt-8">{c.labels.processNodes}</h3>
+        <Copy as="p" class="mono" text={cap.nodes} />
+      </div>
+      <SpecTable rows={cap.specs} labelHead={c.labels.specParameter} valueHead={c.labels.specValue} />
+    </div>
+  </section>
+
+  <section class="section section--tint" aria-labelledby="deliverables-title">
+    <div class="container split split--even">
+      <div>
+        <h2 id="deliverables-title" class="h2">{c.labels.deliverables}</h2>
+        <ul class="spec-list mt-8">
+          {cap.deliverables.map((d) => <li>{d}</li>)}
+        </ul>
+      </div>
+      <div>
+        <h2 class="h2">How we verify</h2>
+        <ul class="spec-list mt-8">
+          {cap.verification.map((v) => <li>{v}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="related-title">
+    <div class="container">
+      <h2 id="related-title" class="eyebrow">Related capabilities</h2>
+      <ul class="cluster related mt-4" role="list">
+        {related.map((r) => (
+          <li><a href={l(routes.capability(r.slug))} class="badge badge--accent related__link">{r.name}</a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand title={cap.cta.title} body={cap.cta.body} primaryHref={l(routes.contact)} secondaryLabel={c.actions.allCapabilities} secondaryHref={l(routes.capabilities)} />
+</Base>
+
+<style>
+  .cap-hero__tags {
+    --cluster-gap: var(--space-2);
+  }
+
+  .problems {
+    display: grid;
+    gap: var(--space-6);
+    margin-block-start: var(--space-10);
+  }
+
+  @media (min-width: 48em) {
+    .problems {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .problem {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .problem__num {
+    color: var(--color-accent);
+    font-size: var(--text-sm);
+    padding-top: 0.2em;
+  }
+
+  .problem h3 {
+    margin-block-end: var(--space-2);
+  }
+
+  .problem p {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+  }
+
+  .related {
+    --cluster-gap: var(--space-2);
+  }
+
+  .related__link {
+    text-decoration: none;
+    padding: 0.5em 0.9em;
+  }
+</style>

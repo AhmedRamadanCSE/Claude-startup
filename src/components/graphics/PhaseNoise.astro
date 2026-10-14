@@ -1,0 +1,152 @@
+---
+/**
+ * PLL phase-noise plot: in-band (reference/TDC) floor shaped by the loop,
+ * VCO 1/f² and 1/f³ regions outside the bandwidth, a reference spur and the
+ * integration band for RMS jitter. Illustrative shape only.
+ */
+import { fmt } from './prng.ts';
+
+interface Props {
+  class?: string;
+  label?: string;
+  decorative?: boolean;
+}
+
+const { class: className, label = 'Illustrative PLL phase-noise plot with loop bandwidth and reference spur', decorative = false } = Astro.props;
+
+const W = 640;
+const H = 360;
+const x0 = 64;
+const x1 = 624;
+const y0 = 24;
+const y1 = 312;
+const fMin = 1e3;
+const fMax = 1e8;
+const lMin = -160;
+const lMax = -60;
+
+const xOf = (f: number) => x0 + ((Math.log10(f) - Math.log10(fMin)) / (Math.log10(fMax) - Math.log10(fMin))) * (x1 - x0);
+const yOf = (l: number) => y1 - ((l - lMin) / (lMax - lMin)) * (y1 - y0);
+
+const fBw = 1.2e6;
+const inBand = (f: number) => -104 + 10 * Math.log10(1 + 8e3 / f);
+const vco = (f: number) => -121 - 20 * Math.log10(f / 1e6) + 10 * Math.log10(1 + 2.5e5 / f);
+const lin = (db: number) => Math.pow(10, db / 10);
+const closed = (f: number) => {
+  const r = Math.pow(f / fBw, 2);
+  const h = 1 / (1 + r * r);
+  const peak = 1 + 0.9 * Math.exp(-Math.pow(Math.log10(f / fBw), 2) / 0.05);
+  return 10 * Math.log10(lin(inBand(f)) * h * peak + lin(vco(f)) * (1 - h));
+};
+
+const pts = (fn: (f: number) => number, n = 90) => {
+  const out: string[] = [];
+  for (let i = 0; i <= n; i++) {
+    const f = fMin * Math.pow(fMax / fMin, i / n);
+    out.push(`${i === 0 ? 'M' : 'L'}${fmt(xOf(f))},${fmt(yOf(fn(f)))}`);
+  }
+  return out.join(' ');
+};
+
+const xTicks = [1e3, 1e4, 1e5, 1e6, 1e7, 1e8];
+const xLabels = ['1k', '10k', '100k', '1M', '10M', '100M'];
+const yTicks = [-160, -140, -120, -100, -80, -60];
+const fSpur = 2.5e7;
+const spurTop = -92;
+const intLo = 1.2e4;
+const intHi = 2e7;
+---
+
+<svg class:list={['pn', className]} viewBox={`0 0 ${W} ${H}`} role={decorative ? undefined : 'img'} aria-label={decorative ? undefined : label} aria-hidden={decorative ? 'true' : undefined} focusable="false">
+  <rect class="pn__band" x={xOf(intLo)} y={y0} width={xOf(intHi) - xOf(intLo)} height={y1 - y0} />
+  <g class="pn__grid">
+    {xTicks.map((f) => <line x1={xOf(f)} x2={xOf(f)} y1={y0} y2={y1} />)}
+    {yTicks.map((l) => <line x1={x0} x2={x1} y1={yOf(l)} y2={yOf(l)} />)}
+  </g>
+  <rect class="pn__frame" x={x0} y={y0} width={x1 - x0} height={y1 - y0} />
+
+  <path class="pn__ref" d={pts(vco)} />
+  <path class="pn__ref" d={pts(inBand)} />
+  <path class="pn__curve" d={pts(closed)} />
+
+  <line class="pn__bw" x1={xOf(fBw)} x2={xOf(fBw)} y1={y0} y2={y1} />
+  <line class="pn__spur" x1={xOf(fSpur)} x2={xOf(fSpur)} y1={yOf(closed(fSpur))} y2={yOf(spurTop)} />
+  <circle class="pn__spur-dot" cx={xOf(fSpur)} cy={yOf(spurTop)} r="2.5" />
+
+  <g class="pn__labels">
+    {xTicks.map((f, i) => <text x={xOf(f)} y={y1 + 18} text-anchor="middle">{xLabels[i]}</text>)}
+    {yTicks.map((l) => <text x={x0 - 8} y={yOf(l) + 4} text-anchor="end">{l}</text>)}
+    <text x={x1} y={y1 + 36} text-anchor="end">offset frequency (Hz)</text>
+    <text x={x0} y={y0 - 8} text-anchor="start">L(f) dBc/Hz</text>
+    <text x={xOf(fBw) + 6} y={y0 + 14} text-anchor="start">f<tspan baseline-shift="sub" font-size="8">BW</tspan></text>
+    <text x={xOf(fSpur) - 6} y={yOf(spurTop) - 6} text-anchor="end">ref spur</text>
+    <text x={xOf(intLo) + 4} y={y1 - 8} text-anchor="start" class="pn__band-label">∫ 12 kHz – 20 MHz</text>
+    <text x={xOf(3e6)} y={yOf(vco(3e6)) - 10} text-anchor="start" class="pn__faint">VCO −20 dB/dec</text>
+    <text x={xOf(3e4)} y={yOf(inBand(3e4)) - 10} text-anchor="start" class="pn__faint">in-band floor</text>
+  </g>
+</svg>
+
+<style>
+  .pn {
+    width: 100%;
+    height: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .pn__band {
+    fill: var(--color-accent-soft);
+  }
+
+  .pn__grid line {
+    stroke: var(--g-grid);
+  }
+
+  .pn__frame {
+    fill: none;
+    stroke: var(--g-axis);
+  }
+
+  .pn__ref {
+    fill: none;
+    stroke: var(--g-trace-2);
+    stroke-width: 1;
+    stroke-dasharray: 3 4;
+    opacity: 0.7;
+  }
+
+  .pn__curve {
+    fill: none;
+    stroke: var(--g-trace);
+    stroke-width: 2;
+    stroke-linejoin: round;
+  }
+
+  .pn__bw {
+    stroke: var(--color-text);
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+    opacity: 0.6;
+  }
+
+  .pn__spur {
+    stroke: var(--g-trace);
+    stroke-width: 1.5;
+  }
+
+  .pn__spur-dot {
+    fill: var(--g-trace);
+  }
+
+  .pn__labels text {
+    fill: var(--g-label);
+  }
+
+  .pn__band-label {
+    fill: var(--color-accent) !important;
+  }
+
+  .pn__faint {
+    opacity: 0.8;
+  }
+</style>

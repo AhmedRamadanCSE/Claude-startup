@@ -1,0 +1,142 @@
+---
+/**
+ * Die-to-die chiplet layout: two dies on a bridge, UCIe modules along the
+ * facing edges with bump arrays, forwarded clock, data lanes and sideband.
+ */
+import { fmt } from './prng.ts';
+
+interface Props {
+  class?: string;
+  label?: string;
+  decorative?: boolean;
+}
+
+const { class: className, label = 'Illustrative die-to-die chiplet layout with UCIe modules on a bridge', decorative = false } = Astro.props;
+
+const W = 640;
+const H = 360;
+const dieA = { x: 40, y: 56, w: 250, h: 248 };
+const dieB = { x: 350, y: 56, w: 250, h: 248 };
+const modules = [78, 150, 222];
+const modW = 64;
+const modH = 56;
+const pitch = 11;
+
+const bumps = (mx: number, my: number) => {
+  const out: { cx: number; cy: number }[] = [];
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) out.push({ cx: mx + 9 + c * pitch, cy: my + 10 + r * pitch });
+  return out;
+};
+
+const lanes = (my: number) => [0, 1, 2, 3, 4].map((k) => my + 10 + k * pitch);
+---
+
+<svg class:list={['chip', className]} viewBox={`0 0 ${W} ${H}`} role={decorative ? undefined : 'img'} aria-label={decorative ? undefined : label} aria-hidden={decorative ? 'true' : undefined} focusable="false">
+  <rect class="chip__bridge" x="236" y="84" width="168" height="236" rx="4" />
+
+  <rect class="chip__die" x={dieA.x} y={dieA.y} width={dieA.w} height={dieA.h} rx="6" />
+  <rect class="chip__die" x={dieB.x} y={dieB.y} width={dieB.w} height={dieB.h} rx="6" />
+  <text class="chip__label chip__label--die" x={dieA.x + 14} y={dieA.y + 24}>DIE A · compute</text>
+  <text class="chip__label chip__label--die" x={dieB.x + dieB.w - 14} y={dieB.y + 24} text-anchor="end">DIE B · I/O</text>
+
+  {modules.map((my, i) => {
+    const ax = dieA.x + dieA.w - modW - 6;
+    const bx = dieB.x + 6;
+    return (
+      <g>
+        <rect class="chip__module" x={ax} y={my} width={modW} height={modH} rx="3" />
+        <rect class="chip__module" x={bx} y={my} width={modW} height={modH} rx="3" />
+        {bumps(ax, my).map((b) => <circle class="chip__bump" cx={b.cx} cy={b.cy} r="2.6" />)}
+        {bumps(bx, my).map((b) => <circle class="chip__bump" cx={b.cx} cy={b.cy} r="2.6" />)}
+        {lanes(my).map((ly, k) => (
+          <line class={k === 2 ? 'chip__lane chip__lane--clk' : 'chip__lane'} x1={ax + modW} x2={bx} y1={ly} y2={ly} style={`--d:${(i * 5 + k) * 90}ms`} />
+        ))}
+        <text class="chip__label chip__label--mod" x={ax - 8} y={my + modH / 2 + 4} text-anchor="end">M{i}</text>
+      </g>
+    );
+  })}
+
+  <line class="chip__sideband" x1={dieA.x + dieA.w - 70} x2={dieB.x + 70} y1={dieA.y + dieA.h - 10} y2={dieB.y + dieB.h - 10} />
+  <text class="chip__label" x="320" y={dieA.y + dieA.h - 18} text-anchor="middle">sideband</text>
+
+  <text class="chip__label" x="320" y="314" text-anchor="middle">bridge / interposer</text>
+  <text class="chip__label" x={fmt(dieA.x)} y="344">UCIe module: x16 lanes + forwarded clock · bump pitch [NUMBER] µm</text>
+</svg>
+
+<style>
+  .chip {
+    width: 100%;
+    height: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .chip__bridge {
+    fill: var(--color-surface-2);
+    stroke: var(--g-axis);
+    stroke-dasharray: 4 3;
+  }
+
+  .chip__die {
+    fill: var(--color-surface);
+    stroke: var(--g-axis);
+    stroke-width: 1.2;
+  }
+
+  .chip__module {
+    fill: var(--color-accent-soft);
+    stroke: var(--color-accent-line);
+  }
+
+  .chip__bump {
+    fill: var(--g-trace-2);
+    opacity: 0.8;
+  }
+
+  .chip__lane {
+    stroke: var(--g-trace);
+    stroke-width: 1.2;
+    stroke-dasharray: 5 9;
+    animation: chip-flow 1.8s linear infinite;
+    animation-delay: var(--d);
+    opacity: 0.85;
+  }
+
+  .chip__lane--clk {
+    stroke: var(--color-text);
+    stroke-dasharray: none;
+    animation: none;
+    opacity: 0.7;
+  }
+
+  .chip__sideband {
+    stroke: var(--g-trace-2);
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+  }
+
+  .chip__label {
+    fill: var(--g-label);
+  }
+
+  .chip__label--die {
+    fill: var(--color-text);
+    letter-spacing: 0.06em;
+  }
+
+  .chip__label--mod {
+    fill: var(--color-accent);
+  }
+
+  @keyframes chip-flow {
+    to {
+      stroke-dashoffset: -14;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chip__lane {
+      animation: none;
+    }
+  }
+</style>

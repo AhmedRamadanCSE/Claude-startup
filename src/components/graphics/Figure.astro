@@ -1,0 +1,65 @@
+---
+/**
+ * Instrument-style frame for the vector motifs: a mono title bar and a caption.
+ */
+import Copy from '../Copy.astro';
+
+interface Props {
+  title?: string;
+  caption?: string;
+  class?: string;
+}
+
+const { title, caption, class: className } = Astro.props;
+---
+
+<figure class:list={['fig', className]}>
+  {title && (
+    <div class="fig__bar" aria-hidden="true">
+      <span class="fig__dot"></span>
+      <span class="fig__title">{title}</span>
+    </div>
+  )}
+  <div class="fig__frame">
+    <slot />
+  </div>
+  {caption && <Copy as="figcaption" class="fig__caption" text={caption} />}
+</figure>
+
+<style>
+  .fig {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .fig__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+    letter-spacing: 0.04em;
+  }
+
+  .fig__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-soft);
+  }
+
+  .fig__frame {
+    padding: var(--space-4);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .fig__caption {
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+  }
+</style>

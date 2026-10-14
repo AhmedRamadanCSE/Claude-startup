@@ -1,0 +1,71 @@
+---
+import { SITE } from '../site.config.ts';
+import { LOCALES, PUBLISHED_LOCALES, DEFAULT_LOCALE } from '../i18n/config.ts';
+import { localizePath, stripLocale } from '../i18n/index.ts';
+import { absoluteUrl, organizationLd, websiteLd, webPageLd, graph } from '../lib/seo.ts';
+import { stripPlaceholderNotes } from '../lib/placeholders.ts';
+import { ogImagePath } from '../lib/routes.ts';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Site-relative canonical path, with trailing slash. */
+  path: string;
+  /** OG image key (see src/pages/og/[...key].png.ts) or an absolute path. */
+  ogKey?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  locale?: string;
+  /** Additional schema.org nodes merged into the page graph. */
+  jsonLd?: Record<string, unknown>[];
+  publishedTime?: Date;
+  modifiedTime?: Date;
+}
+
+const { title, description, path, ogKey = 'default', type = 'website', noindex = false, locale, jsonLd = [], publishedTime, modifiedTime } = Astro.props;
+const lang = locale ?? Astro.currentLocale ?? DEFAULT_LOCALE;
+const meta = LOCALES[lang] ?? LOCALES[DEFAULT_LOCALE]!;
+const site = Astro.site;
+const canonical = absoluteUrl(path, site);
+const cleanDescription = stripPlaceholderNotes(description);
+const cleanTitle = stripPlaceholderNotes(title);
+const ogImage = absoluteUrl(ogKey.startsWith('/') ? ogKey : ogImagePath(ogKey), site);
+const neutralPath = stripLocale(path);
+
+const ld = graph([
+  organizationLd(site),
+  websiteLd(site),
+  webPageLd(site, path, cleanTitle, cleanDescription),
+  ...jsonLd,
+]);
+---
+
+<title>{cleanTitle}</title>
+<meta name="description" content={cleanDescription} />
+<link rel="canonical" href={canonical} />
+{noindex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow, max-image-preview:large" />}
+
+{PUBLISHED_LOCALES.map((code) => (
+  <link rel="alternate" hreflang={LOCALES[code]?.htmlLang ?? code} href={absoluteUrl(localizePath(neutralPath, code), site)} />
+))}
+<link rel="alternate" hreflang="x-default" href={absoluteUrl(localizePath(neutralPath, DEFAULT_LOCALE), site)} />
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:locale" content={meta.ogLocale} />
+<meta property="og:url" content={canonical} />
+<meta property="og:title" content={cleanTitle} />
+<meta property="og:description" content={cleanDescription} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={cleanTitle} />
+{publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+{modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={cleanTitle} />
+<meta name="twitter:description" content={cleanDescription} />
+<meta name="twitter:image" content={ogImage} />
+
+<script type="application/ld+json" set:html={JSON.stringify(ld)} />

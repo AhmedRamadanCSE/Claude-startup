@@ -1,0 +1,110 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Copy from '../../components/Copy.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getDictionary, localizePath } from '../../i18n/index.ts';
+import { routes, ogImagePath } from '../../lib/routes.ts';
+import { splitEntryId, formatDate } from '../../lib/format.ts';
+import { articleLd } from '../../lib/seo.ts';
+
+export const getStaticPaths = (async () => {
+  const entries = await getCollection('insights', (e) => !e.data.draft && e.id.startsWith('en/'));
+  return entries.map((entry) => ({ params: { slug: splitEntryId(entry.id).slug }, props: { entry } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const lang = Astro.currentLocale ?? 'en';
+const dict = getDictionary(lang);
+const c = dict.common;
+const l = (p: string) => localizePath(p, lang);
+const { slug } = splitEntryId(entry.id);
+const path = l(routes.insight(slug));
+const { Content } = await render(entry);
+const area = dict.capabilities.find((x) => x.slug === entry.data.area);
+const ogKey = `insights-${slug}`;
+const others = (await getCollection('insights', (e) => !e.data.draft && e.id.startsWith(`${lang}/`) && e.id !== entry.id))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 2);
+const areaName = (s: string) => dict.capabilities.find((x) => x.slug === s)?.name ?? 'General';
+
+const jsonLd = [
+  articleLd(Astro.site, {
+    path,
+    headline: entry.data.title,
+    description: entry.data.description,
+    datePublished: entry.data.date,
+    dateModified: entry.data.updated,
+    author: entry.data.author,
+    image: ogImagePath(ogKey),
+  }),
+];
+---
+
+<Base title={`${entry.data.title} | ${c.brand}`} description={entry.data.description} path={path} ogKey={ogKey} type="article" jsonLd={jsonLd} publishedTime={entry.data.date} modifiedTime={entry.data.updated}>
+  <article>
+    <section class="section article-head">
+      <div class="container container--narrow">
+        <Breadcrumbs items={[{ name: c.nav.insights, path: l(routes.insights) }, { name: entry.data.title, path }]} locale={lang} />
+        <p class="cluster article-meta mono">
+          {area && <a class="badge badge--accent" href={l(routes.capability(area.slug))}>{area.name}</a>}
+          <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date, lang)}</time>
+          <span>{c.labels.readingTime(entry.data.readingMinutes)}</span>
+        </p>
+        <h1 class="article-title">{entry.data.title}</h1>
+        <p class="lede">{entry.data.description}</p>
+        <p class="article-author"><Copy text={dict.insights.byLine(entry.data.author)} />{entry.data.authorRole && <span class="faint"> · {entry.data.authorRole}</span>}</p>
+      </div>
+    </section>
+
+    <section class="section section--tint">
+      <div class="container container--narrow">
+        <div class="prose">
+          <Content />
+        </div>
+        {entry.data.tags.length > 0 && (
+          <ul class="cluster mt-12" role="list" aria-label="Tags">
+            {entry.data.tags.map((tag) => <li class="badge">{tag}</li>)}
+          </ul>
+        )}
+      </div>
+    </section>
+
+    {others.length > 0 && (
+      <section class="section" aria-labelledby="more-title">
+        <div class="container">
+          <h2 id="more-title" class="eyebrow">{c.actions.readMore}</h2>
+          <div class="grid grid--2 mt-4">
+            {others.map((o) => <ArticleCard entry={o} locale={lang} areaName={areaName(o.data.area)} readingLabel={c.labels.readingTime(o.data.readingMinutes)} />)}
+          </div>
+        </div>
+      </section>
+    )}
+  </article>
+
+  <CtaBand title={dict.insights.cta.title} body={dict.insights.cta.body} primaryHref={l(routes.contact)} />
+</Base>
+
+<style>
+  .article-head .container {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .article-meta {
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+  }
+
+  .article-title {
+    font-size: var(--text-4xl);
+  }
+
+  .article-author {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+</style>

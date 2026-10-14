@@ -1,0 +1,26 @@
+---
+import type { EngagementModel } from '../i18n/en/engagement.ts';
+import { routes } from '../lib/routes.ts';
+import { localizePath } from '../i18n/index.ts';
+
+interface Props {
+  model: EngagementModel;
+  locale?: string;
+  index?: number;
+}
+
+const { model, locale = 'en', index } = Astro.props;
+---
+
+<article class="card card--interactive eng-card">
+  {typeof index === 'number' && <span class="mono eng-card__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>}
+  <h3 class="card__title"><a href={localizePath(routes.engagementModel(model.id), locale)}>{model.name}</a></h3>
+  <p class="card__body">{model.short}</p>
+</article>
+
+<style>
+  .eng-card__index {
+    font-size: var(--text-xs);
+    color: var(--color-accent);
+  }
+</style>

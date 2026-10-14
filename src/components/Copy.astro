@@ -1,0 +1,19 @@
+---
+/**
+ * Renders a copy string with placeholder fragments (upper-case label in square brackets) highlighted.
+ * Usage: <Copy text={t.hero.lede} as="p" class="lede" />
+ */
+import { renderCopy } from '../lib/placeholders.ts';
+
+interface Props {
+  text: string;
+  as?: 'span' | 'p' | 'div' | 'li' | 'dd' | 'dt' | 'h1' | 'h2' | 'h3' | 'h4' | 'td' | 'th' | 'figcaption' | 'small' | 'strong';
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { text, as: Tag = 'span', class: className, ...rest } = Astro.props;
+const html = renderCopy(text);
+---
+
+<Tag class={className} set:html={html} {...rest} />

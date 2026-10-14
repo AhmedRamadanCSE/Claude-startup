@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import CapabilityCard from '../../components/CapabilityCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { getDictionary, localizePath } from '../../i18n/index.ts';
+import { routes } from '../../lib/routes.ts';
+import { serviceLd } from '../../lib/seo.ts';
+
+const lang = Astro.currentLocale ?? 'en';
+const dict = getDictionary(lang);
+const t = dict.capabilitiesIndex;
+const c = dict.common;
+const l = (p: string) => localizePath(p, lang);
+const core = dict.capabilities.slice(0, 5);
+const other = dict.capabilities.slice(5);
+const jsonLd = dict.capabilities.map((cap) =>
+  serviceLd(Astro.site, { path: routes.capability(cap.slug), name: cap.name, description: cap.short, serviceType: `${cap.name} design services`, keywords: cap.keywords }),
+);
+---
+
+<Base title={t.seo.title} description={t.seo.description} path={l(routes.capabilities)} ogKey="capabilities" jsonLd={jsonLd}>
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs items={[{ name: c.nav.capabilities, path: l(routes.capabilities) }]} locale={lang} />
+      <SectionHead as="h1" eyebrow={t.hero.eyebrow} title={t.hero.title} lede={t.hero.lede} />
+
+      <h2 class="eyebrow mt-8">{t.coreLabel}</h2>
+      <div class="grid grid--3 mt-4">
+        {core.map((cap, i) => <CapabilityCard capability={cap} locale={lang} index={i} linkLabel={c.actions.learnMore} />)}
+      </div>
+
+      <h2 class="eyebrow mt-12">{t.otherLabel}</h2>
+      <div class="grid grid--3 mt-4">
+        {other.map((cap, i) => <CapabilityCard capability={cap} locale={lang} index={core.length + i} linkLabel={c.actions.learnMore} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint" aria-labelledby="how-title">
+    <div class="container">
+      <SectionHead title={t.howTitle} id="how-title" />
+      <div class="grid grid--3">
+        {t.how.map((h) => (
+          <div class="card">
+            <h3 class="card__title">{h.title}</h3>
+            <p class="card__body">{h.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CtaBand title={t.cta.title} body={t.cta.body} primaryHref={l(routes.contact)} />
+</Base>

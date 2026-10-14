@@ -1,0 +1,189 @@
+---
+import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
+import Button from './Button.astro';
+import Copy from './Copy.astro';
+import { getDictionary, localizePath } from '../i18n/index.ts';
+import { routes } from '../lib/routes.ts';
+
+interface Props {
+  locale?: string;
+}
+
+const { locale } = Astro.props;
+const lang = locale ?? Astro.currentLocale ?? 'en';
+const t = getDictionary(lang).contact.form;
+
+const i18n = {
+  ...t.validation,
+  form: t.errorBody,
+  submitting: t.submitting,
+};
+---
+
+<div class="lead-form">
+  <div id="lead-form-success" class="lead-form__success" hidden tabindex="-1" role="status">
+    <p class="lead-form__success-title">{t.successTitle}</p>
+    <Copy as="p" text={t.successBody} />
+  </div>
+
+  <form id="lead-form" class="lead-form__form" method="post" action={routes.leadApi} novalidate>
+    <h2 class="h3">{t.title}</h2>
+    <p id="lead-form-status" class="lead-form__status" hidden tabindex="-1" role="alert"></p>
+
+    <div class="grid grid--2">
+      <div class="field">
+        <label class="field__label" for="name">{t.name} <span class="faint" aria-hidden="true">*</span></label>
+        <input class="input" id="name" name="name" type="text" autocomplete="name" required aria-describedby="name-error" />
+        <p class="field__error" id="name-error" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="email">{t.email} <span class="faint" aria-hidden="true">*</span></label>
+        <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="email-hint email-error" />
+        <p class="field__hint" id="email-hint">{t.emailHint}</p>
+        <p class="field__error" id="email-error" hidden></p>
+      </div>
+    </div>
+
+    <div class="grid grid--2">
+      <div class="field">
+        <label class="field__label" for="company">{t.company} <span class="faint" aria-hidden="true">*</span></label>
+        <input class="input" id="company" name="company" type="text" autocomplete="organization" required aria-describedby="company-error" />
+        <p class="field__error" id="company-error" hidden></p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="projectType">{t.projectType} <span class="faint" aria-hidden="true">*</span></label>
+        <select class="select" id="projectType" name="projectType" required aria-describedby="projectType-error">
+          <option value="">{t.projectTypePlaceholder}</option>
+          {t.projectTypes.map((o) => <option value={o.value}>{o.label}</option>)}
+        </select>
+        <p class="field__error" id="projectType-error" hidden></p>
+      </div>
+    </div>
+
+    <div class="grid grid--2">
+      <div class="field">
+        <label class="field__label" for="targetNode">{t.targetNode}</label>
+        <input class="input" id="targetNode" name="targetNode" type="text" placeholder={t.targetNodePlaceholder} autocomplete="off" />
+      </div>
+      <div class="field">
+        <label class="field__label" for="timeline">{t.timeline} <span class="faint" aria-hidden="true">*</span></label>
+        <select class="select" id="timeline" name="timeline" required aria-describedby="timeline-error">
+          <option value="">{t.timelinePlaceholder}</option>
+          {t.timelines.map((o) => <option value={o.value}>{o.label}</option>)}
+        </select>
+        <p class="field__error" id="timeline-error" hidden></p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="message">{t.message} <span class="faint" aria-hidden="true">*</span></label>
+      <textarea class="textarea" id="message" name="message" rows="5" placeholder={t.messagePlaceholder} required aria-describedby="message-error"></textarea>
+      <p class="field__error" id="message-error" hidden></p>
+    </div>
+
+    <div class="field field--check">
+      <label class="lead-form__check">
+        <input type="checkbox" name="consent" value="on" required aria-describedby="consent-error" />
+        <span>{t.consent} <a href={localizePath(routes.privacy, lang)}>→</a></span>
+      </label>
+      <p class="field__error" id="consent-error" hidden></p>
+    </div>
+
+    <!-- Spam protection: honeypot (hidden from humans), time trap, optional Turnstile -->
+    <div class="lead-form__hp" aria-hidden="true">
+      <label for="website">Website</label>
+      <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+    <input type="hidden" name="_t" value="" />
+    <input type="hidden" name="pageUri" value="" />
+    <input type="hidden" name="hutk" value="" />
+    {PUBLIC_TURNSTILE_SITE_KEY && <div class="turnstile" data-sitekey={PUBLIC_TURNSTILE_SITE_KEY}></div>}
+
+    <div class="lead-form__actions">
+      <Button type="submit" size="lg">{t.submit}</Button>
+      <span class="faint lead-form__required">* {t.required}</span>
+    </div>
+  </form>
+
+  <script type="application/json" id="lead-form-i18n" set:html={JSON.stringify(i18n)} />
+  <script src="../scripts/lead-form.ts"></script>
+</div>
+
+<style>
+  .lead-form__form {
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-6);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+  }
+
+  @media (min-width: 48em) {
+    .lead-form__form {
+      padding: var(--space-8);
+    }
+  }
+
+  .lead-form__status {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+  }
+
+  .lead-form__status--error {
+    background: var(--color-error-soft);
+    color: var(--color-error);
+    border: 1px solid currentColor;
+  }
+
+  .lead-form__check {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .lead-form__check input {
+    margin-top: 0.3em;
+    accent-color: var(--color-accent);
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .lead-form__hp {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .lead-form__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .lead-form__required {
+    font-size: var(--text-xs);
+  }
+
+  .lead-form__success {
+    padding: var(--space-8);
+    background: var(--color-accent-soft);
+    border: 1px solid var(--color-accent-line);
+    border-radius: var(--radius-xl);
+    outline: none;
+  }
+
+  .lead-form__success-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    margin-block-end: var(--space-2);
+  }
+</style>

@@ -1,0 +1,100 @@
+---
+import Copy from './Copy.astro';
+import type { CollectionEntry } from 'astro:content';
+import { routes } from '../lib/routes.ts';
+import { localizePath } from '../i18n/index.ts';
+import { splitEntryId } from '../lib/format.ts';
+
+interface Props {
+  entry: CollectionEntry<'caseStudies'>;
+  areaName: string;
+  engagementName: string;
+  locale?: string;
+  labels: { challenge: string; ourRole: string; result: string; node: string };
+}
+
+const { entry, areaName, engagementName, locale = 'en', labels } = Astro.props;
+const { slug } = splitEntryId(entry.id);
+const href = localizePath(routes.caseStudy(slug), locale);
+---
+
+<article class="card card--interactive cs-card">
+  <div class="cluster cs-card__tags">
+    <span class="badge badge--accent">{areaName}</span>
+    <span class="badge">{engagementName}</span>
+  </div>
+  <h3 class="card__title"><a href={href}><Copy text={entry.data.title} /></a></h3>
+  <dl class="cs-card__summary">
+    <dt>{labels.challenge}</dt>
+    <Copy as="dd" text={entry.data.challenge} />
+    <dt>{labels.result}</dt>
+    <Copy as="dd" text={entry.data.result} />
+  </dl>
+  {entry.data.metrics.length > 0 && (
+    <ul class="cs-card__metrics" role="list">
+      {entry.data.metrics.map((m) => (
+        <li>
+          <span class="cs-card__metric-label">{m.label}</span>
+          <Copy as="span" class="mono cs-card__metric-value" text={m.value} />
+        </li>
+      ))}
+    </ul>
+  )}
+  <p class="cs-card__node mono"><span class="faint">{labels.node}:</span> <Copy text={entry.data.node} /></p>
+</article>
+
+<style>
+  .cs-card {
+    gap: var(--space-4);
+  }
+
+  .cs-card__summary {
+    display: grid;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+  }
+
+  .cs-card__summary dt {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-faint);
+    margin-block-start: var(--space-2);
+  }
+
+  .cs-card__summary dd {
+    color: var(--color-text-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .cs-card__metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    margin-block-start: auto;
+    padding-block-start: var(--space-4);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .cs-card__metrics li {
+    display: grid;
+    gap: 2px;
+  }
+
+  .cs-card__metric-label {
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+  }
+
+  .cs-card__metric-value {
+    font-size: var(--text-sm);
+  }
+
+  .cs-card__node {
+    font-size: var(--text-xs);
+  }
+</style>

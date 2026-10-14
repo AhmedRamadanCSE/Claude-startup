@@ -1,0 +1,124 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Copy from '../../components/Copy.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import CapabilityFigure from '../../components/graphics/CapabilityFigure.astro';
+import { getDictionary, localizePath } from '../../i18n/index.ts';
+import { routes } from '../../lib/routes.ts';
+import { splitEntryId } from '../../lib/format.ts';
+import { stripPlaceholderNotes } from '../../lib/placeholders.ts';
+
+export const getStaticPaths = (async () => {
+  const entries = await getCollection('caseStudies', (e) => !e.data.draft && e.id.startsWith('en/'));
+  return entries.map((entry) => ({ params: { slug: splitEntryId(entry.id).slug }, props: { entry } }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const lang = Astro.currentLocale ?? 'en';
+const dict = getDictionary(lang);
+const c = dict.common;
+const l = (p: string) => localizePath(p, lang);
+const { slug } = splitEntryId(entry.id);
+const path = l(routes.caseStudy(slug));
+const { Content } = await render(entry);
+const area = dict.capabilities.find((x) => x.slug === entry.data.area);
+const engagement = dict.engagementModels.find((x) => x.id === entry.data.engagement);
+---
+
+<Base title={`${stripPlaceholderNotes(entry.data.title)} | ${c.nav.caseStudies} | ${c.brand}`} description={entry.data.description} path={path} ogKey={`case-studies-${slug}`} type="article">
+  <article>
+    <section class="section">
+      <div class="container">
+        <Breadcrumbs items={[{ name: c.nav.caseStudies, path: l(routes.caseStudies) }, { name: stripPlaceholderNotes(entry.data.title), path }]} locale={lang} />
+        <div class="split">
+          <div class="stack">
+            <p class="cluster">
+              {area && <a class="badge badge--accent" href={l(routes.capability(area.slug))}>{area.name}</a>}
+              {engagement && <a class="badge" href={l(routes.engagementModel(engagement.id))}>{engagement.name}</a>}
+            </p>
+            <h1><Copy text={entry.data.title} /></h1>
+            <Copy as="p" class="lede" text={entry.data.description} />
+            <dl class="facts">
+              <div><dt>{c.labels.node}</dt><Copy as="dd" class="mono" text={entry.data.node} /></div>
+              <div><dt>{c.labels.duration}</dt><Copy as="dd" class="mono" text={entry.data.duration} /></div>
+              <div><dt>Client</dt><Copy as="dd" text={entry.data.clientType} /></div>
+            </dl>
+          </div>
+          <div class="stack">
+            {entry.data.metrics.length > 0 && (
+              <ul class="metrics" role="list">
+                {entry.data.metrics.map((m) => (
+                  <li class="metric">
+                    <span class="metric__label">{m.label}</span>
+                    <Copy as="span" class="mono metric__value" text={m.value} />
+                  </li>
+                ))}
+              </ul>
+            )}
+            {area && <CapabilityFigure kind={area.figure} decorative />}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tint">
+      <div class="container">
+        <div class="prose">
+          <Content />
+        </div>
+      </div>
+    </section>
+  </article>
+
+  <CtaBand title={dict.caseStudies.cta.title} body={dict.caseStudies.cta.body} primaryHref={l(routes.contact)} secondaryLabel={c.actions.backTo(c.nav.caseStudies)} secondaryHref={l(routes.caseStudies)} />
+</Base>
+
+<style>
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding-block-start: var(--space-5);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .facts dt {
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .facts dd {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-sm);
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--grid-gap);
+  }
+
+  .metric {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .metric__label {
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+  }
+
+  .metric__value {
+    font-size: var(--text-lg);
+  }
+</style>

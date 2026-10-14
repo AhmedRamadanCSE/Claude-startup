@@ -1,0 +1,202 @@
+---
+import Logo from './Logo.astro';
+import Copy from './Copy.astro';
+import { getDictionary, localizePath } from '../i18n/index.ts';
+import { routes } from '../lib/routes.ts';
+import { SITE } from '../site.config.ts';
+import { LOCALES, PUBLISHED_LOCALES } from '../i18n/config.ts';
+
+interface Props {
+  locale?: string;
+}
+
+const { locale } = Astro.props;
+const lang = locale ?? Astro.currentLocale ?? 'en';
+const dict = getDictionary(lang);
+const t = dict.common;
+const year = new Date().getFullYear();
+const l = (p: string) => localizePath(p, lang);
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__about">
+        <a href={l('/')} class="quiet" aria-label={`${SITE.name} home`}><Logo /></a>
+        <p class="site-footer__tagline mono">{t.tagline}</p>
+        <Copy as="p" class="site-footer__text" text={t.footer.about} />
+      </div>
+
+      <nav aria-labelledby="footer-capabilities">
+        <h2 id="footer-capabilities" class="site-footer__heading">{t.footer.columns.capabilities}</h2>
+        <ul role="list">
+          {dict.capabilities.map((c) => (
+            <li><a href={l(routes.capability(c.slug))}>{c.name}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      <nav aria-labelledby="footer-company">
+        <h2 id="footer-company" class="site-footer__heading">{t.footer.columns.company}</h2>
+        <ul role="list">
+          <li><a href={l(routes.engagement)}>{t.footer.links.engagement}</a></li>
+          <li><a href={l(routes.caseStudies)}>{t.footer.links.caseStudies}</a></li>
+          <li><a href={l(routes.security)}>{t.footer.links.security}</a></li>
+          <li><a href={l(routes.team)}>{t.footer.links.team}</a></li>
+          <li><a href={l(routes.careers)}>{t.footer.links.careers}</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-labelledby="footer-resources">
+        <h2 id="footer-resources" class="site-footer__heading">{t.footer.columns.resources}</h2>
+        <ul role="list">
+          <li><a href={l(routes.insights)}>{t.footer.links.insights}</a></li>
+          <li><a href={l(routes.contact)}>{t.footer.links.contact}</a></li>
+        </ul>
+        <h2 class="site-footer__heading mt-8">{t.footer.contactHeading}</h2>
+        <ul role="list" class="site-footer__contact">
+          <li><Copy text={SITE.contact.salesEmail} /></li>
+          <li>{t.footer.locationLine}</li>
+          <li>{t.footer.replyLine}</li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p class="site-footer__copy"><Copy text={t.footer.copyright(year)} /> <span class="faint">{t.footer.designNote}</span></p>
+      <ul role="list" class="site-footer__legal">
+        <li><a href={l(routes.privacy)}>{t.footer.links.privacy}</a></li>
+        <li><a href={l(routes.terms)}>{t.footer.links.terms}</a></li>
+        <li><a href={l(routes.cookies)}>{t.footer.links.cookies}</a></li>
+        <li><button type="button" class="site-footer__linkbtn" data-open-consent>{t.footer.links.cookieSettings}</button></li>
+      </ul>
+      <div class="site-footer__lang">
+        <span class="visually-hidden">{t.language.label}</span>
+        <ul role="list">
+          {PUBLISHED_LOCALES.map((code) => (
+            <li><a href={localizePath('/', code)} hreflang={LOCALES[code]?.htmlLang} aria-current={code === lang ? 'true' : undefined}>{LOCALES[code]?.nativeName}</a></li>
+          ))}
+        </ul>
+        <span class="faint site-footer__lang-note">{t.language.comingSoon}</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-block-start: auto;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-elevated);
+    padding-block: var(--space-16) var(--space-10);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: var(--space-10);
+  }
+
+  @media (min-width: 48em) {
+    .site-footer__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64em) {
+    .site-footer__grid {
+      grid-template-columns: 2fr 1fr 1fr 1.2fr;
+      gap: var(--space-12);
+    }
+  }
+
+  .site-footer__about {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    max-width: 30rem;
+  }
+
+  .site-footer__tagline {
+    font-size: var(--text-xs);
+    color: var(--color-accent);
+    letter-spacing: 0.02em;
+  }
+
+  .site-footer__text {
+    line-height: var(--leading-relaxed);
+  }
+
+  .site-footer__heading {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-faint);
+    margin-block-end: var(--space-4);
+  }
+
+  .site-footer ul {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .site-footer a {
+    text-decoration: none;
+  }
+
+  .site-footer a:hover {
+    text-decoration: underline;
+  }
+
+  .site-footer__contact li {
+    line-height: 1.5;
+  }
+
+  .site-footer__bottom {
+    display: grid;
+    gap: var(--space-4);
+    margin-block-start: var(--space-16);
+    padding-block-start: var(--space-6);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--text-xs);
+  }
+
+  @media (min-width: 64em) {
+    .site-footer__bottom {
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: var(--space-8);
+    }
+  }
+
+  .site-footer__legal,
+  .site-footer__lang ul {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: var(--space-4) !important;
+  }
+
+  .site-footer__linkbtn {
+    color: inherit;
+    font: inherit;
+  }
+
+  .site-footer__linkbtn:hover {
+    text-decoration: underline;
+  }
+
+  .site-footer__lang {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: center;
+  }
+
+  .site-footer__lang a[aria-current] {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+</style>

@@ -1,0 +1,60 @@
+---
+import Copy from './Copy.astro';
+import type { Capability } from '../i18n/en/capabilities.ts';
+import { routes } from '../lib/routes.ts';
+import { localizePath } from '../i18n/index.ts';
+
+interface Props {
+  capability: Capability;
+  locale?: string;
+  index?: number;
+  linkLabel?: string;
+}
+
+const { capability: c, locale = 'en', index, linkLabel = 'Details' } = Astro.props;
+const href = localizePath(routes.capability(c.slug), locale);
+---
+
+<article class="card card--interactive cap-card">
+  <div class="cap-card__head">
+    {typeof index === 'number' && <span class="mono cap-card__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>}
+    <h3 class="card__title"><a href={href} data-astro-prefetch>{c.name}</a></h3>
+  </div>
+  <p class="card__body">{c.short}</p>
+  <ul class="spec-list cap-card__specs">
+    {c.summarySpecs.map((s) => <Copy as="li" class="mono" text={s} />)}
+  </ul>
+  <span class="cap-card__link" aria-hidden="true">{linkLabel} →</span>
+</article>
+
+<style>
+  .cap-card {
+    gap: var(--space-4);
+  }
+
+  .cap-card__head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+
+  .cap-card__index {
+    font-size: var(--text-xs);
+    color: var(--color-accent);
+  }
+
+  .cap-card__specs {
+    margin-block-start: auto;
+    font-size: var(--text-xs);
+  }
+
+  .cap-card__specs li {
+    color: var(--color-text-muted);
+  }
+
+  .cap-card__link {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+</style>

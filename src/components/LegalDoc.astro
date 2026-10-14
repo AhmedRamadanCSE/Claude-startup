@@ -1,0 +1,78 @@
+---
+import Copy from './Copy.astro';
+import type { LegalDoc } from '../i18n/en/legal.ts';
+
+interface Props {
+  doc: LegalDoc;
+  updatedLabel?: string;
+}
+
+const { doc, updatedLabel = 'Last updated' } = Astro.props;
+---
+
+<article class="legal prose">
+  <header class="legal__head">
+    <h1>{doc.title}</h1>
+    <p class="mono faint">{updatedLabel}: <Copy text={doc.updated} /></p>
+    <Copy as="p" class="lede" text={doc.intro} />
+    <Copy as="p" class="legal__review" text={doc.reviewNote} />
+  </header>
+
+  {doc.sections.map((s) => (
+    <section class="legal__section">
+      <h2>{s.title}</h2>
+      {s.paragraphs?.map((p) => <Copy as="p" text={p} />)}
+      {s.items && (
+        <ul>
+          {s.items.map((i) => <Copy as="li" text={i} />)}
+        </ul>
+      )}
+      {s.table && (
+        <div class="legal__table">
+          <table>
+            <thead>
+              <tr>{s.table.columns.map((c) => <th scope="col">{c}</th>)}</tr>
+            </thead>
+            <tbody>
+              {s.table.rows.map((row) => (
+                <tr>{row.map((cell, ci) => (ci === 0 ? <th scope="row">{cell}</th> : <Copy as="td" text={cell} />))}</tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  ))}
+</article>
+
+<style>
+  .legal__head {
+    display: grid;
+    gap: var(--space-4);
+    margin-block-end: var(--space-10);
+  }
+
+  .legal__review {
+    font-size: var(--text-sm);
+  }
+
+  .legal__section {
+    margin-block-start: var(--space-10);
+  }
+
+  .legal__section > * + * {
+    margin-block-start: 1em;
+  }
+
+  .legal__table {
+    overflow-x: auto;
+    margin-block-start: 1em;
+  }
+
+  .legal__table th[scope='row'] {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: var(--text-sm);
+    color: var(--color-text);
+  }
+</style>

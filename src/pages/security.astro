@@ -1,0 +1,112 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Copy from '../components/Copy.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { getDictionary, localizePath } from '../i18n/index.ts';
+import { routes } from '../lib/routes.ts';
+
+const lang = Astro.currentLocale ?? 'en';
+const dict = getDictionary(lang);
+const t = dict.security;
+const c = dict.common;
+const l = (p: string) => localizePath(p, lang);
+const path = l(routes.security);
+---
+
+<Base title={t.seo.title} description={t.seo.description} path={path} ogKey="security">
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs items={[{ name: c.nav.security, path }]} locale={lang} />
+      <SectionHead as="h1" eyebrow={t.hero.eyebrow} title={t.hero.title} lede={t.hero.lede} />
+      <nav class="cluster toc" aria-label="Sections">
+        {t.sections.map((s, i) => <a href={`#${s.id}`} class="badge"><span class="toc__num">{String(i + 1).padStart(2, '0')}</span> {s.title}</a>)}
+      </nav>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container">
+      <ol class="controls" role="list">
+        {t.sections.map((s, i) => (
+          <li class="control" id={s.id}>
+            <div class="control__head">
+              <span class="mono control__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <h2 class="h3">{s.title}</h2>
+            </div>
+            <div class="control__body">
+              <Copy as="p" text={s.body} />
+              <ul class="spec-list">
+                {s.items.map((item) => <Copy as="li" text={item} />)}
+              </ul>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container split">
+      <SectionHead title={t.audit.title} />
+      <Copy as="p" class="lede" text={t.audit.body} />
+    </div>
+  </section>
+
+  <CtaBand title={t.cta.title} body={t.cta.body} primaryHref={l(routes.contact)} />
+</Base>
+
+<style>
+  .toc {
+    --cluster-gap: var(--space-2);
+  }
+
+  .toc a {
+    text-decoration: none;
+  }
+
+  .toc__num {
+    color: var(--color-accent);
+  }
+
+  .controls {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .control {
+    display: grid;
+    gap: var(--space-5);
+    padding: var(--space-6);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    scroll-margin-top: calc(var(--header-height) + 1rem);
+  }
+
+  @media (min-width: 56em) {
+    .control {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      gap: var(--space-10);
+      padding: var(--space-8);
+    }
+  }
+
+  .control__head {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+  }
+
+  .control__num {
+    color: var(--color-accent);
+    font-size: var(--text-sm);
+  }
+
+  .control__body {
+    display: grid;
+    gap: var(--space-5);
+    color: var(--color-text-muted);
+  }
+</style>

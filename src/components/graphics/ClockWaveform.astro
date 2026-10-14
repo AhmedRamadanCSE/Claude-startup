@@ -1,0 +1,159 @@
+---
+/**
+ * PLL lock illustration: reference clock, feedback clock and the phase-detector
+ * UP pulse. The feedback clock slides into alignment and the error pulse
+ * shrinks to zero (CSS animation; static and locked under reduced motion).
+ */
+import { fmt } from './prng.ts';
+
+interface Props {
+  class?: string;
+  label?: string;
+  decorative?: boolean;
+}
+
+const { class: className, label = 'Illustrative PLL lock: reference and feedback clocks aligning, phase error shrinking to zero', decorative = false } = Astro.props;
+
+const W = 640;
+const H = 360;
+const x0 = 80;
+const period = 80;
+const periods = 6.5;
+const amp = 34;
+
+const square = (y: number, offset = 0) => {
+  let d = `M${fmt(x0 + offset)},${fmt(y + amp)}`;
+  for (let i = 0; i < periods; i++) {
+    const xs = x0 + offset + i * period;
+    d += ` L${fmt(xs)},${fmt(y - amp)} L${fmt(xs + period / 2)},${fmt(y - amp)} L${fmt(xs + period / 2)},${fmt(y + amp)} L${fmt(xs + period)},${fmt(y + amp)}`;
+  }
+  return d;
+};
+
+const yRef = 78;
+const yFb = 178;
+const yUp = 278;
+const phaseError = 26;
+---
+
+<svg class:list={['clk', className]} viewBox={`0 0 ${W} ${H}`} role={decorative ? undefined : 'img'} aria-label={decorative ? undefined : label} aria-hidden={decorative ? 'true' : undefined} focusable="false">
+  <g class="clk__grid">
+    {Array.from({ length: 7 }, (_, i) => <line x1={x0 + i * period} x2={x0 + i * period} y1="30" y2="330" />)}
+  </g>
+
+  <text class="clk__label" x="24" y={yRef + 4}>REF</text>
+  <path class="clk__wave" d={square(yRef)} />
+
+  <text class="clk__label" x="24" y={yFb + 4}>FB</text>
+  <g class="clk__fb">
+    <path class="clk__wave clk__wave--fb" d={square(yFb, phaseError)} />
+  </g>
+
+  <text class="clk__label" x="24" y={yUp + 4}>UP</text>
+  <line class="clk__base" x1={x0} x2={x0 + periods * period} y1={yUp + amp} y2={yUp + amp} />
+  {Array.from({ length: 6 }, (_, i) => (
+    <g class="clk__pulse" style={`transform-origin: ${fmt(x0 + i * period)}px ${fmt(yUp)}px`}>
+      <rect x={x0 + i * period} y={yUp - amp} width={phaseError} height={amp * 2} />
+    </g>
+  ))}
+
+  <g class="clk__annot">
+    <line x1={x0} x2={x0} y1={yRef - amp - 14} y2={yUp + amp + 10} />
+    <text x={x0 + 6} y={yRef - amp - 4}>Δφ → 0</text>
+  </g>
+  <text class="clk__label clk__label--foot" x={x0} y="346">PFD + charge pump · loop filter · VCO · ÷N</text>
+</svg>
+
+<style>
+  .clk {
+    width: 100%;
+    height: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .clk__grid line {
+    stroke: var(--g-grid);
+  }
+
+  .clk__label {
+    fill: var(--g-label);
+  }
+
+  .clk__label--foot {
+    letter-spacing: 0.04em;
+  }
+
+  .clk__wave {
+    fill: none;
+    stroke: var(--color-text);
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+    opacity: 0.85;
+  }
+
+  .clk__wave--fb {
+    stroke: var(--g-trace);
+    opacity: 1;
+  }
+
+  .clk__fb {
+    animation: clk-lock 6s var(--ease-out) infinite;
+  }
+
+  .clk__base {
+    stroke: var(--g-axis);
+  }
+
+  .clk__pulse rect {
+    fill: var(--g-trace);
+    opacity: 0.55;
+  }
+
+  .clk__pulse {
+    animation: clk-shrink 6s var(--ease-out) infinite;
+  }
+
+  .clk__annot line {
+    stroke: var(--g-axis);
+    stroke-dasharray: 2 4;
+  }
+
+  .clk__annot text {
+    fill: var(--color-accent);
+  }
+
+  @keyframes clk-lock {
+    0% {
+      transform: translateX(0);
+    }
+
+    55%,
+    100% {
+      transform: translateX(-26px);
+    }
+  }
+
+  @keyframes clk-shrink {
+    0% {
+      transform: scaleX(1);
+    }
+
+    55%,
+    100% {
+      transform: scaleX(0.04);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .clk__fb {
+      animation: none;
+      transform: translateX(-26px);
+    }
+
+    .clk__pulse {
+      animation: none;
+      transform: scaleX(0.04);
+    }
+  }
+</style>

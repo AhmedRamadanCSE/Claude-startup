@@ -1,0 +1,160 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Copy from '../components/Copy.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { getDictionary, localizePath } from '../i18n/index.ts';
+import { routes } from '../lib/routes.ts';
+import { stripPlaceholderNotes } from '../lib/placeholders.ts';
+import { absoluteUrl } from '../lib/seo.ts';
+
+const lang = Astro.currentLocale ?? 'en';
+const dict = getDictionary(lang);
+const t = dict.team;
+const c = dict.common;
+const l = (p: string) => localizePath(p, lang);
+const path = l(routes.team);
+const jsonLd = t.leaders.map((p) => ({
+  '@type': 'Person',
+  name: stripPlaceholderNotes(p.name),
+  jobTitle: p.role,
+  worksFor: { '@id': absoluteUrl('/#organization', Astro.site) },
+  knowsAbout: [...p.areas],
+}));
+---
+
+<Base title={t.seo.title} description={t.seo.description} path={path} ogKey="team" jsonLd={jsonLd}>
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs items={[{ name: c.nav.team, path }]} locale={lang} />
+      <SectionHead as="h1" eyebrow={t.hero.eyebrow} title={t.hero.title} lede={t.hero.lede} />
+    </div>
+  </section>
+
+  <section class="section section--tint" aria-labelledby="leaders-title">
+    <div class="container">
+      <h2 id="leaders-title" class="eyebrow">{t.leadersTitle}</h2>
+      <ul class="grid grid--3 mt-8" role="list">
+        {t.leaders.map((p) => (
+          <li class="card leader">
+            <div class="leader__photo" role="img" aria-label={stripPlaceholderNotes(p.photo)}>
+              <Copy text={p.photo} />
+            </div>
+            <h3 class="card__title"><Copy text={p.name} /></h3>
+            <p class="leader__role">{p.role}</p>
+            <p class="mono leader__years"><Copy text={p.years} /></p>
+            <ul class="cluster leader__areas" role="list">
+              {p.areas.map((a) => <li class="badge">{a}</li>)}
+            </ul>
+            <Copy as="p" class="card__body" text={p.bio} />
+            <p class="leader__link faint"><Copy text={p.linkedin} /></p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="stats-title">
+    <div class="container">
+      <h2 id="stats-title" class="h2">{t.stats.title}</h2>
+      <dl class="stats">
+        {t.stats.items.map((s) => (
+          <div class="stat">
+            <Copy as="dd" class="mono stat__value" text={s.value} />
+            <dt class="stat__label">{s.label}</dt>
+          </div>
+        ))}
+      </dl>
+      <p class="faint mt-4">{t.stats.note}</p>
+    </div>
+  </section>
+
+  <section class="section section--tint" aria-labelledby="principles-title">
+    <div class="container">
+      <h2 id="principles-title" class="h2">{t.principles.title}</h2>
+      <div class="grid grid--2 mt-8">
+        {t.principles.items.map((p) => (
+          <div class="card">
+            <h3 class="card__title">{p.title}</h3>
+            <p class="card__body">{p.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container split">
+      <SectionHead title={t.location.title} />
+      <p class="lede">{t.location.body}</p>
+    </div>
+  </section>
+
+  <CtaBand title={t.cta.title} body={t.cta.body} primaryHref={l(routes.contact)} />
+</Base>
+
+<style>
+  .leader__photo {
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+    padding: var(--space-4);
+    text-align: center;
+    background: var(--color-bg-elevated);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+  }
+
+  .leader__role {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .leader__years {
+    font-size: var(--text-xs);
+    color: var(--color-accent);
+  }
+
+  .leader__areas {
+    --cluster-gap: var(--space-1);
+  }
+
+  .leader__link {
+    font-size: var(--text-xs);
+    margin-block-start: auto;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--grid-gap);
+    margin: var(--space-8) 0 0;
+  }
+
+  @media (min-width: 64em) {
+    .stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .stat {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .stat__value {
+    margin: 0;
+    font-size: var(--text-xl);
+  }
+
+  .stat__label {
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+  }
+</style>

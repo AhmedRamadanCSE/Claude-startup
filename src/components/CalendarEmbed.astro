@@ -1,0 +1,138 @@
+---
+import { PUBLIC_CALENDAR_URL } from 'astro:env/client';
+import Button from './Button.astro';
+import Copy from './Copy.astro';
+import { getDictionary } from '../i18n/index.ts';
+
+interface Props {
+  locale?: string;
+  heading?: 'h2' | 'h3';
+}
+
+const { locale, heading: Heading = 'h2' } = Astro.props;
+const lang = locale ?? Astro.currentLocale ?? 'en';
+const t = getDictionary(lang).contact.calendar;
+const url = PUBLIC_CALENDAR_URL;
+---
+
+<section class="calendar" id="calendar" aria-labelledby="calendar-title">
+  <Heading id="calendar-title" class="h3">{t.title}</Heading>
+  <p class="muted">{t.body}</p>
+
+  {url ? (
+    <div class="calendar__host" data-calendar-url={url}>
+      <div class="calendar__booked" id="calendar-booked" hidden role="status">
+        <p class="calendar__booked-title">{t.bookedTitle}</p>
+        <p>{t.bookedBody}</p>
+      </div>
+      <div class="calendar__actions">
+        <Button type="button" variant="secondary" size="lg" id="calendar-open" data-track="calendar_open">{t.button}</Button>
+        <a class="calendar__fallback" href={url} target="_blank" rel="noopener noreferrer">{t.button} ↗</a>
+      </div>
+      <p class="faint calendar__note">{t.loadNote}</p>
+    </div>
+  ) : (
+    <p class="calendar__placeholder"><Copy text={t.placeholder} /></p>
+  )}
+</section>
+
+<script>
+  const host = document.querySelector<HTMLElement>('.calendar__host');
+  const btn = document.getElementById('calendar-open');
+  const url = host?.dataset.calendarUrl;
+
+  if (host && btn && url) {
+    let origin = '';
+    try {
+      origin = new URL(url).origin;
+    } catch {
+      /* invalid URL: button stays a no-op, fallback link still works */
+    }
+
+    btn.addEventListener('click', () => {
+      if (host.querySelector('iframe')) return;
+      window.siTrack?.('calendar_open');
+      const frame = document.createElement('iframe');
+      const embedUrl = new URL(url);
+      if (/calendly\.com$/.test(embedUrl.hostname)) {
+        embedUrl.searchParams.set('embed_domain', location.hostname);
+        embedUrl.searchParams.set('embed_type', 'Inline');
+      }
+      if (/cal\.com$/.test(embedUrl.hostname)) {
+        embedUrl.searchParams.set('embed', 'true');
+        embedUrl.searchParams.set('theme', document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+      }
+      frame.src = embedUrl.href;
+      frame.title = btn.textContent ?? 'Booking calendar';
+      frame.className = 'calendar__frame';
+      frame.loading = 'lazy';
+      frame.referrerPolicy = 'strict-origin-when-cross-origin';
+      host.insertBefore(frame, host.firstChild);
+      btn.hidden = true;
+    });
+
+    // Booking confirmation events from Calendly and Cal.com embeds.
+    window.addEventListener('message', (e) => {
+      if (origin && e.origin !== origin) return;
+      const d = e.data as { event?: string; type?: string; originator?: string } | undefined;
+      const booked = d?.event === 'calendly.event_scheduled' || d?.type === 'bookingSuccessful' || d?.type === 'bookingSuccessfulV2';
+      if (!booked) return;
+      window.siTrack?.('calendar_booking');
+      const note = document.getElementById('calendar-booked');
+      if (note) note.hidden = false;
+    });
+  }
+</script>
+
+<style>
+  .calendar {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .calendar__host {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .calendar__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .calendar__fallback {
+    font-size: var(--text-sm);
+  }
+
+  .calendar__note {
+    font-size: var(--text-xs);
+  }
+
+  :global(.calendar__frame) {
+    width: 100%;
+    min-height: 44rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .calendar__booked {
+    padding: var(--space-5);
+    background: var(--color-accent-soft);
+    border: 1px solid var(--color-accent-line);
+    border-radius: var(--radius-lg);
+  }
+
+  .calendar__booked-title {
+    font-weight: 600;
+  }
+
+  .calendar__placeholder {
+    padding: var(--space-5);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-muted);
+  }
+</style>

@@ -1,0 +1,37 @@
+---
+import type { FigureKind } from '../../i18n/en/capabilities.ts';
+import Figure from './Figure.astro';
+import EyeDiagram from './EyeDiagram.astro';
+import PhaseNoise from './PhaseNoise.astro';
+import ChipletLayout from './ChipletLayout.astro';
+import DdrTiming from './DdrTiming.astro';
+import RfSpectrum from './RfSpectrum.astro';
+import AdcStaircase from './AdcStaircase.astro';
+
+interface Props {
+  kind: FigureKind;
+  caption?: string;
+  class?: string;
+  decorative?: boolean;
+}
+
+const { kind, caption, class: className, decorative = false } = Astro.props;
+
+const titles: Record<FigureKind, string> = {
+  eye: 'EYE · NRZ · 2 UI',
+  ddr: 'TIMING · DQS / DQ · WRITE',
+  pll: 'PHASE NOISE · L(f)',
+  ble: 'SPECTRUM · 2.4 GHz · LE 1M',
+  ucie: 'FLOORPLAN · DIE-TO-DIE',
+  ams: 'TRANSFER · ADC · INL/DNL',
+};
+---
+
+<Figure title={titles[kind]} caption={caption} class={className}>
+  {kind === 'eye' && <EyeDiagram decorative={decorative} />}
+  {kind === 'ddr' && <DdrTiming decorative={decorative} />}
+  {kind === 'pll' && <PhaseNoise decorative={decorative} />}
+  {kind === 'ble' && <RfSpectrum decorative={decorative} />}
+  {kind === 'ucie' && <ChipletLayout decorative={decorative} />}
+  {kind === 'ams' && <AdcStaircase decorative={decorative} />}
+</Figure>

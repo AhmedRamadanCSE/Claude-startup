@@ -1,0 +1,90 @@
+---
+import Button from './Button.astro';
+import Copy from './Copy.astro';
+import { routes } from '../lib/routes.ts';
+
+interface Props {
+  title: string;
+  body?: string;
+  primaryLabel?: string;
+  primaryHref?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+  class?: string;
+}
+
+const {
+  title,
+  body,
+  primaryLabel = 'Request an NDA call',
+  primaryHref = routes.contact,
+  secondaryLabel,
+  secondaryHref,
+  class: className,
+} = Astro.props;
+---
+
+<section class:list={['cta-band', className]} aria-labelledby="cta-band-title">
+  <div class="container cta-band__inner">
+    <div class="cta-band__text">
+      <Copy as="h2" id="cta-band-title" text={title} />
+      {body && <Copy as="p" class="lede" text={body} />}
+    </div>
+    <div class="cta-band__actions cluster">
+      <Button href={primaryHref} size="lg" data-track="cta_primary">{primaryLabel}</Button>
+      {secondaryLabel && secondaryHref && (
+        <Button href={secondaryHref} variant="secondary" size="lg">{secondaryLabel}</Button>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-band {
+    position: relative;
+    padding-block: var(--section-space);
+    border-top: 1px solid var(--color-border);
+    background:
+      radial-gradient(60rem 30rem at 85% 120%, var(--color-accent-soft), transparent 60%),
+      var(--color-bg-elevated);
+    overflow: hidden;
+  }
+
+  .cta-band::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--g-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--g-grid) 1px, transparent 1px);
+    background-size: 2.5rem 2.5rem;
+    mask-image: linear-gradient(to bottom, transparent, black 40%, transparent);
+    pointer-events: none;
+  }
+
+  .cta-band__inner {
+    position: relative;
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  @media (min-width: 56em) {
+    .cta-band__inner {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+
+    .cta-band__actions {
+      justify-content: flex-end;
+    }
+  }
+
+  .cta-band__text {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .cta-band h2 {
+    font-size: var(--text-3xl);
+  }
+</style>

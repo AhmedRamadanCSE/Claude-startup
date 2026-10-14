@@ -1,0 +1,312 @@
+---
+import Base from '../layouts/Base.astro';
+import Button from '../components/Button.astro';
+import Copy from '../components/Copy.astro';
+import SectionHead from '../components/SectionHead.astro';
+import CapabilityCard from '../components/CapabilityCard.astro';
+import EngagementCard from '../components/EngagementCard.astro';
+import CaseStudyCard from '../components/CaseStudyCard.astro';
+import Steps from '../components/Steps.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Figure from '../components/graphics/Figure.astro';
+import EyeDiagram from '../components/graphics/EyeDiagram.astro';
+import ChipletLayout from '../components/graphics/ChipletLayout.astro';
+import { getCollection } from 'astro:content';
+import { getDictionary, localizePath } from '../i18n/index.ts';
+import { routes } from '../lib/routes.ts';
+import { serviceLd } from '../lib/seo.ts';
+
+const lang = Astro.currentLocale ?? 'en';
+const dict = getDictionary(lang);
+const t = dict.home;
+const c = dict.common;
+const l = (p: string) => localizePath(p, lang);
+
+const caseStudies = (await getCollection('caseStudies', (e) => !e.data.draft && e.id.startsWith(`${lang}/`)))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
+
+const areaName = (slug: string) => dict.capabilities.find((x) => x.slug === slug)?.name ?? slug;
+const engagementName = (id: string) => dict.engagementModels.find((x) => x.id === id)?.name ?? id;
+
+const jsonLd = dict.capabilities.slice(0, 5).map((cap) =>
+  serviceLd(Astro.site, { path: routes.capability(cap.slug), name: cap.name, description: cap.short, serviceType: `${cap.name} design services`, keywords: cap.keywords }),
+);
+---
+
+<Base title={t.seo.title} description={t.seo.description} path={l('/')} ogKey="home" jsonLd={jsonLd}>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__text">
+        <p class="eyebrow">{t.hero.eyebrow}</p>
+        <h1 class="display"><Copy text={t.hero.title} /></h1>
+        <Copy as="p" class="lede hero__lede" text={t.hero.lede} />
+        <div class="cluster hero__actions">
+          <Button href={l(routes.contact)} size="lg" data-track="hero_primary">{t.hero.primaryCta}</Button>
+          <Button href={l(routes.capabilities)} variant="secondary" size="lg">{t.hero.secondaryCta}</Button>
+        </div>
+        <dl class="hero__facts">
+          {t.hero.facts.map((f) => (
+            <div>
+              <dt>{f.label}</dt>
+              <dd class="mono">{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+      <div class="hero__figure">
+        <Figure title="EYE · NRZ · 2 UI · ILLUSTRATIVE" caption={t.hero.figureCaption}>
+          <EyeDiagram id="hero-eye" />
+        </Figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Proof strip -->
+  <section class="proof section--tint" aria-labelledby="proof-title">
+    <div class="container">
+      <h2 id="proof-title" class="proof__title">{t.proof.title}</h2>
+      <dl class="proof__grid">
+        {t.proof.items.map((item) => (
+          <div class="proof__item">
+            <dt>{item.label}</dt>
+            <Copy as="dd" class="mono" text={item.value} />
+          </div>
+        ))}
+      </dl>
+      <p class="proof__note faint">{t.proof.note}</p>
+    </div>
+  </section>
+
+  <!-- Capabilities -->
+  <section class="section" aria-labelledby="capabilities-title">
+    <div class="container">
+      <SectionHead eyebrow={t.capabilities.eyebrow} title={t.capabilities.title} lede={t.capabilities.lede} id="capabilities-title" />
+      <div class="grid grid--3">
+        {dict.capabilities.map((cap, i) => <CapabilityCard capability={cap} locale={lang} index={i} linkLabel={c.actions.learnMore} />)}
+      </div>
+      <p class="mt-8"><a href={l(routes.capabilities)} class="more">{t.capabilities.cta} →</a></p>
+    </div>
+  </section>
+
+  <!-- How we work -->
+  <section class="section section--tint" aria-labelledby="process-title">
+    <div class="container">
+      <SectionHead eyebrow={t.process.eyebrow} title={t.process.title} lede={t.process.lede} id="process-title" />
+      <Steps steps={t.process.steps} />
+    </div>
+  </section>
+
+  <!-- Why us -->
+  <section class="section" aria-labelledby="why-title">
+    <div class="container split">
+      <div>
+        <SectionHead eyebrow={t.why.eyebrow} title={t.why.title} id="why-title" />
+        <Figure title="FLOORPLAN · DIE-TO-DIE · UCIe">
+          <ChipletLayout decorative />
+        </Figure>
+      </div>
+      <ul class="why" role="list">
+        {t.why.items.map((item) => (
+          <li class="why__item">
+            <h3 class="h4">{item.title}</h3>
+            <Copy as="p" class="muted" text={item.body} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Engagement models -->
+  <section class="section section--tint" aria-labelledby="engagement-title">
+    <div class="container">
+      <SectionHead eyebrow={t.engagement.eyebrow} title={t.engagement.title} id="engagement-title" />
+      <div class="grid grid--4">
+        {dict.engagementModels.map((m, i) => <EngagementCard model={m} locale={lang} index={i} />)}
+      </div>
+      <p class="mt-8"><a href={l(routes.engagement)} class="more">{t.engagement.cta} →</a></p>
+    </div>
+  </section>
+
+  <!-- Case studies -->
+  <section class="section" aria-labelledby="cases-title">
+    <div class="container">
+      <SectionHead eyebrow={t.caseStudies.eyebrow} title={t.caseStudies.title} lede={t.caseStudies.lede} id="cases-title" />
+      <div class="grid grid--3">
+        {caseStudies.map((entry) => (
+          <CaseStudyCard entry={entry} locale={lang} areaName={areaName(entry.data.area)} engagementName={engagementName(entry.data.engagement)} labels={{ challenge: c.labels.challenge, ourRole: c.labels.ourRole, result: c.labels.result, node: c.labels.node }} />
+        ))}
+      </div>
+      <p class="mt-8"><a href={l(routes.caseStudies)} class="more">{t.caseStudies.cta} →</a></p>
+    </div>
+  </section>
+
+  <!-- Security -->
+  <section class="section section--tint" aria-labelledby="security-title">
+    <div class="container split split--even">
+      <SectionHead eyebrow={t.security.eyebrow} title={t.security.title} id="security-title">
+        <p><a href={l(routes.security)} class="more">{t.security.cta} →</a></p>
+      </SectionHead>
+      <ul class="spec-list security-list">
+        {t.security.items.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand title={t.finalCta.title} body={t.finalCta.body} primaryLabel={t.finalCta.primaryCta} primaryHref={l(routes.contact)} secondaryLabel={t.finalCta.secondaryCta} secondaryHref={l(routes.engagement)} />
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    padding-block: clamp(3rem, 8vw, 6.5rem) clamp(3rem, 7vw, 5.5rem);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(50rem 28rem at 110% -10%, var(--color-accent-soft), transparent 60%),
+      linear-gradient(var(--g-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--g-grid) 1px, transparent 1px);
+    background-size: auto, 2.5rem 2.5rem, 2.5rem 2.5rem;
+    mask-image: linear-gradient(to bottom, black 20%, transparent 95%);
+    pointer-events: none;
+  }
+
+  .hero__inner {
+    position: relative;
+    display: grid;
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  @media (min-width: 64em) {
+    .hero__inner {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+      gap: var(--space-16);
+    }
+  }
+
+  .hero__text {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .hero__text h1 {
+    max-width: 14ch;
+  }
+
+  .hero__lede {
+    max-width: 56ch;
+  }
+
+  .hero__actions {
+    --cluster-gap: var(--space-3);
+  }
+
+  .hero__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--space-4) var(--space-6);
+    padding-block-start: var(--space-6);
+    border-top: 1px solid var(--color-border);
+    margin: 0;
+  }
+
+  .hero__facts dt {
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .hero__facts dd {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-sm);
+    color: var(--color-text);
+  }
+
+  .proof {
+    padding-block: var(--space-10);
+  }
+
+  .proof__title {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-text-faint);
+    margin-block-end: var(--space-6);
+  }
+
+  .proof__grid {
+    display: grid;
+    gap: var(--space-6);
+    margin: 0;
+  }
+
+  @media (min-width: 40em) {
+    .proof__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64em) {
+    .proof__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .proof__item {
+    padding-inline-start: var(--space-4);
+    border-inline-start: 2px solid var(--color-accent-line);
+  }
+
+  .proof__item dt {
+    font-size: var(--text-xs);
+    color: var(--color-text-faint);
+    margin-block-end: var(--space-2);
+  }
+
+  .proof__item dd {
+    margin: 0;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+
+  .proof__note {
+    margin-block-start: var(--space-6);
+    font-size: var(--text-xs);
+  }
+
+  .more {
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--color-accent);
+  }
+
+  .more:hover {
+    text-decoration: underline;
+  }
+
+  .why {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .why__item {
+    display: grid;
+    gap: var(--space-2);
+    padding-block-start: var(--space-5);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .security-list {
+    font-size: var(--text-base);
+  }
+</style>

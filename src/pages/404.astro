@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import Button from '../components/Button.astro';
+import { getDictionary, localizePath } from '../i18n/index.ts';
+
+const lang = Astro.currentLocale ?? 'en';
+const t = getDictionary(lang).misc.notFound;
+const l = (p: string) => localizePath(p, lang);
+---
+
+<Base title={t.seo.title} description={t.seo.description} path="/404/" noindex>
+  <section class="section">
+    <div class="container container--narrow stack stack--lg">
+      <div class="stack">
+        <p class="eyebrow">{t.eyebrow}</p>
+        <h1>{t.title}</h1>
+        <p class="lede">{t.body}</p>
+        <p><Button href={l('/')} size="lg">{t.homeCta}</Button></p>
+      </div>
+      <ul class="spec-list">
+        {t.links.map((link) => <li><a href={l(link.href)}>{link.label}</a></li>)}
+      </ul>
+    </div>
+  </section>
+</Base>
